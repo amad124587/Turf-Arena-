@@ -1,3 +1,103 @@
+<script>
+import {
+  buildOwnerPromoSummary,
+  createOwnerPromoCode,
+  createOwnerPromoForm,
+  fetchOwnerPromoCodes,
+  formatOwnerPromoDate,
+  formatOwnerPromoMoney,
+  toggleOwnerPromoCode
+} from '../support/ownerPromoCodesSupport'
+
+export default {
+  name: 'OwnerPromoCodesSection',
+  props: {
+    ownerId: { type: Number, required: true },
+    ownerName: { type: String, default: 'Owner' }
+  },
+  data() {
+    return {
+      loading: false,
+      message: '',
+      messageType: 'info',
+      form: createOwnerPromoForm(),
+      promos: [],
+      summary: {
+        total_codes: 0,
+        active_codes: 0,
+        inactive_codes: 0
+      }
+    }
+  },
+  computed: {
+    summaryCards() {
+      return buildOwnerPromoSummary(this.summary)
+    }
+  },
+  async mounted() {
+    await this.loadPromos()
+  },
+  methods: {
+    formatMoney: formatOwnerPromoMoney,
+    formatDate: formatOwnerPromoDate,
+    async loadPromos() {
+      if (!this.ownerId) return
+      this.loading = true
+      this.message = ''
+      try {
+        const data = await fetchOwnerPromoCodes(this.ownerId)
+        if (!data?.success) {
+          this.messageType = 'error'
+          this.message = data?.message || 'Failed to load promo codes.'
+          return
+        }
+        this.promos = Array.isArray(data.promos) ? data.promos : []
+        this.summary = { ...this.summary, ...(data.summary || {}) }
+      } catch (error) {
+        this.messageType = 'error'
+        this.message = error.response?.data?.message || 'Server connection failed while loading promo codes.'
+      } finally {
+        this.loading = false
+      }
+    },
+    async submitPromo() {
+      if (!this.ownerId) return
+      this.loading = true
+      this.message = ''
+      try {
+        const data = await createOwnerPromoCode(this.ownerId, this.form)
+        this.messageType = data?.success ? 'success' : 'error'
+        this.message = data?.message || 'Promo code request finished.'
+        if (data?.success) {
+          this.form = createOwnerPromoForm()
+          await this.loadPromos()
+        }
+      } catch (error) {
+        this.messageType = 'error'
+        this.message = error.response?.data?.message || 'Server connection failed while creating promo code.'
+      } finally {
+        this.loading = false
+      }
+    },
+    async togglePromo(promo) {
+      this.loading = true
+      this.message = ''
+      try {
+        const data = await toggleOwnerPromoCode(this.ownerId, promo.promo_id, !promo.is_active)
+        this.messageType = data?.success ? 'success' : 'error'
+        this.message = data?.message || 'Promo code updated.'
+        await this.loadPromos()
+      } catch (error) {
+        this.messageType = 'error'
+        this.message = error.response?.data?.message || 'Server connection failed while updating promo code.'
+      } finally {
+        this.loading = false
+      }
+    }
+  }
+}
+</script>
+
 <template>
   <section class="space-y-3.5">
     <div class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
@@ -115,103 +215,3 @@
     </section>
   </section>
 </template>
-
-<script>
-import {
-  buildOwnerPromoSummary,
-  createOwnerPromoCode,
-  createOwnerPromoForm,
-  fetchOwnerPromoCodes,
-  formatOwnerPromoDate,
-  formatOwnerPromoMoney,
-  toggleOwnerPromoCode
-} from '../support/ownerPromoCodesSupport'
-
-export default {
-  name: 'OwnerPromoCodesSection',
-  props: {
-    ownerId: { type: Number, required: true },
-    ownerName: { type: String, default: 'Owner' }
-  },
-  data() {
-    return {
-      loading: false,
-      message: '',
-      messageType: 'info',
-      form: createOwnerPromoForm(),
-      promos: [],
-      summary: {
-        total_codes: 0,
-        active_codes: 0,
-        inactive_codes: 0
-      }
-    }
-  },
-  computed: {
-    summaryCards() {
-      return buildOwnerPromoSummary(this.summary)
-    }
-  },
-  async mounted() {
-    await this.loadPromos()
-  },
-  methods: {
-    formatMoney: formatOwnerPromoMoney,
-    formatDate: formatOwnerPromoDate,
-    async loadPromos() {
-      if (!this.ownerId) return
-      this.loading = true
-      this.message = ''
-      try {
-        const data = await fetchOwnerPromoCodes(this.ownerId)
-        if (!data?.success) {
-          this.messageType = 'error'
-          this.message = data?.message || 'Failed to load promo codes.'
-          return
-        }
-        this.promos = Array.isArray(data.promos) ? data.promos : []
-        this.summary = { ...this.summary, ...(data.summary || {}) }
-      } catch (error) {
-        this.messageType = 'error'
-        this.message = error.response?.data?.message || 'Server connection failed while loading promo codes.'
-      } finally {
-        this.loading = false
-      }
-    },
-    async submitPromo() {
-      if (!this.ownerId) return
-      this.loading = true
-      this.message = ''
-      try {
-        const data = await createOwnerPromoCode(this.ownerId, this.form)
-        this.messageType = data?.success ? 'success' : 'error'
-        this.message = data?.message || 'Promo code request finished.'
-        if (data?.success) {
-          this.form = createOwnerPromoForm()
-          await this.loadPromos()
-        }
-      } catch (error) {
-        this.messageType = 'error'
-        this.message = error.response?.data?.message || 'Server connection failed while creating promo code.'
-      } finally {
-        this.loading = false
-      }
-    },
-    async togglePromo(promo) {
-      this.loading = true
-      this.message = ''
-      try {
-        const data = await toggleOwnerPromoCode(this.ownerId, promo.promo_id, !promo.is_active)
-        this.messageType = data?.success ? 'success' : 'error'
-        this.message = data?.message || 'Promo code updated.'
-        await this.loadPromos()
-      } catch (error) {
-        this.messageType = 'error'
-        this.message = error.response?.data?.message || 'Server connection failed while updating promo code.'
-      } finally {
-        this.loading = false
-      }
-    }
-  }
-}
-</script>

@@ -1,3 +1,18 @@
+<script>
+export default {
+  name: 'OwnerBookingClientDetailsModal',
+  props: {
+    visible: { type: Boolean, default: false },
+    booking: { type: Object, default: null },
+    formatDate: { type: Function, required: true },
+    formatTime: { type: Function, required: true },
+    formatMoney: { type: Function, required: true },
+    statusTone: { type: Function, required: true }
+  },
+  emits: ['close', 'email', 'call']
+}
+</script>
+
 <template>
 
 <div v-if="visible && booking" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm" @click.self="$emit('close')">
@@ -45,18 +60,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: 'OwnerBookingClientDetailsModal',
-  props: {
-    visible: { type: Boolean, default: false },
-    booking: { type: Object, default: null },
-    formatDate: { type: Function, required: true },
-    formatTime: { type: Function, required: true },
-    formatMoney: { type: Function, required: true },
-    statusTone: { type: Function, required: true }
-  },
-  emits: ['close', 'email', 'call']
-}
-</script>

@@ -1,3 +1,83 @@
+<script>
+import AppTopbar from '../components/AppTopbar.vue'
+import UserBrowseTurfCard from '../components/UserBrowseTurfCard.vue'
+import GlassButton from '../components/GlassButton.vue'
+import UserSidebar from '../components/UserSidebar.vue'
+import {
+  getAvailableSports,
+  getDhakaTodayDate,
+  getFilteredTurfs,
+  userBrowseTurfsMethods
+} from '../support/userBrowseTurfsSupport'
+
+export default {
+  name: 'UserBrowseTurfs',
+  components: {
+    AppTopbar,
+    UserBrowseTurfCard,
+    GlassButton,
+    UserSidebar
+  },
+  data() {
+    return {
+      userName: localStorage.getItem('user_name') || 'User',
+      turfs: [],
+      loading: false,
+      statusText: '',
+      errorText: '',
+      bookingMap: {},
+      promoLoadingMap: {},
+      slotLoadingMap: {},
+      dateInputDebounceMap: {},
+      searchText: '',
+      sportFilter: 'all',
+      locationFilter: '',
+      minPrice: '',
+      maxPrice: '',
+      sortBy: 'newest',
+      todayDate: getDhakaTodayDate()
+    }
+  },
+  computed: {
+    availableSports() {
+      return getAvailableSports(this.turfs)
+    },
+    filteredTurfs() {
+      return getFilteredTurfs(this.turfs, {
+        searchText: this.searchText,
+        sportFilter: this.sportFilter,
+        locationFilter: this.locationFilter,
+        minPrice: this.minPrice,
+        maxPrice: this.maxPrice,
+        sortBy: this.sortBy
+      })
+    }
+  },
+  async mounted() {
+    await this.loadTurfs()
+  },
+  methods: {
+    ...userBrowseTurfsMethods,
+    handleSidebarAction(key) {
+      if (key === 'dashboard') {
+        this.$router.push('/dashboard')
+        return
+      }
+      if (key === 'browse') return
+      if (key === 'bookings') {
+        this.$router.push('/bookings')
+        return
+      }
+      if (key === 'transactions') {
+        this.$router.push('/transactions')
+        return
+      }
+      if (key === 'wallet' || key === 'review' || key === 'support') return
+    }
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen w-full box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins text-[#111827]">
     <AppTopbar wrapper-class="mb-3 max-[760px]:flex-wrap">
@@ -102,83 +182,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import AppTopbar from '../components/AppTopbar.vue'
-import UserBrowseTurfCard from '../components/UserBrowseTurfCard.vue'
-import GlassButton from '../components/GlassButton.vue'
-import UserSidebar from '../components/UserSidebar.vue'
-import {
-  getAvailableSports,
-  getDhakaTodayDate,
-  getFilteredTurfs,
-  userBrowseTurfsMethods
-} from '../support/userBrowseTurfsSupport'
-
-export default {
-  name: 'UserBrowseTurfs',
-  components: {
-    AppTopbar,
-    UserBrowseTurfCard,
-    GlassButton,
-    UserSidebar
-  },
-  data() {
-    return {
-      userName: localStorage.getItem('user_name') || 'User',
-      turfs: [],
-      loading: false,
-      statusText: '',
-      errorText: '',
-      bookingMap: {},
-      promoLoadingMap: {},
-      slotLoadingMap: {},
-      dateInputDebounceMap: {},
-      searchText: '',
-      sportFilter: 'all',
-      locationFilter: '',
-      minPrice: '',
-      maxPrice: '',
-      sortBy: 'newest',
-      todayDate: getDhakaTodayDate()
-    }
-  },
-  computed: {
-    availableSports() {
-      return getAvailableSports(this.turfs)
-    },
-    filteredTurfs() {
-      return getFilteredTurfs(this.turfs, {
-        searchText: this.searchText,
-        sportFilter: this.sportFilter,
-        locationFilter: this.locationFilter,
-        minPrice: this.minPrice,
-        maxPrice: this.maxPrice,
-        sortBy: this.sortBy
-      })
-    }
-  },
-  async mounted() {
-    await this.loadTurfs()
-  },
-  methods: {
-    ...userBrowseTurfsMethods,
-    handleSidebarAction(key) {
-      if (key === 'dashboard') {
-        this.$router.push('/dashboard')
-        return
-      }
-      if (key === 'browse') return
-      if (key === 'bookings') {
-        this.$router.push('/bookings')
-        return
-      }
-      if (key === 'transactions') {
-        this.$router.push('/transactions')
-        return
-      }
-      if (key === 'wallet' || key === 'review' || key === 'support') return
-    }
-  }
-}
-</script>

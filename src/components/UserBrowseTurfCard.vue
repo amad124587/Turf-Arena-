@@ -1,3 +1,70 @@
+<script>
+import GlassButton from './GlassButton.vue'
+
+export default {
+  name: 'UserBrowseTurfCard',
+  components: {
+    GlassButton
+  },
+  props: {
+    turf: {
+      type: Object,
+      required: true
+    },
+    todayDate: {
+      type: String,
+      required: true
+    },
+    slotLoading: {
+      type: Boolean,
+      default: false
+    },
+    bookingLoading: {
+      type: Boolean,
+      default: false
+    },
+    promoLoading: {
+      type: Boolean,
+      default: false
+    },
+    selectedSlot: {
+      type: Object,
+      default: null
+    },
+    priceBreakdown: {
+      type: Object,
+      default: null
+    },
+    formatSlotLabel: {
+      type: Function,
+      required: true
+    },
+    formatDuration: {
+      type: Function,
+      required: true
+    },
+    formatMoney: {
+      type: Function,
+      required: true
+    },
+    statusTextClass: {
+      type: Function,
+      required: true
+    }
+  },
+  emits: ['update-field', 'date-change', 'slot-change', 'book', 'apply-promo'],
+  methods: {
+    emitUpdate(field, value) {
+      this.$emit('update-field', this.turf, field, value)
+    },
+    onSlotSelect(event) {
+      this.emitUpdate('selected_slot_id', Number(event.target.value || 0))
+      this.$emit('slot-change', this.turf)
+    }
+  }
+}
+</script>
+
 <template>
   <article class="overflow-hidden rounded-2xl border border-white/95 bg-white/80 backdrop-blur-[14px] shadow-glass">
     <div class="relative h-[170px] w-full bg-slate-200">
@@ -129,70 +196,3 @@
     </div>
   </article>
 </template>
-
-<script>
-import GlassButton from './GlassButton.vue'
-
-export default {
-  name: 'UserBrowseTurfCard',
-  components: {
-    GlassButton
-  },
-  props: {
-    turf: {
-      type: Object,
-      required: true
-    },
-    todayDate: {
-      type: String,
-      required: true
-    },
-    slotLoading: {
-      type: Boolean,
-      default: false
-    },
-    bookingLoading: {
-      type: Boolean,
-      default: false
-    },
-    promoLoading: {
-      type: Boolean,
-      default: false
-    },
-    selectedSlot: {
-      type: Object,
-      default: null
-    },
-    priceBreakdown: {
-      type: Object,
-      default: null
-    },
-    formatSlotLabel: {
-      type: Function,
-      required: true
-    },
-    formatDuration: {
-      type: Function,
-      required: true
-    },
-    formatMoney: {
-      type: Function,
-      required: true
-    },
-    statusTextClass: {
-      type: Function,
-      required: true
-    }
-  },
-  emits: ['update-field', 'date-change', 'slot-change', 'book', 'apply-promo'],
-  methods: {
-    emitUpdate(field, value) {
-      this.$emit('update-field', this.turf, field, value)
-    },
-    onSlotSelect(event) {
-      this.emitUpdate('selected_slot_id', Number(event.target.value || 0))
-      this.$emit('slot-change', this.turf)
-    }
-  }
-}
-</script>

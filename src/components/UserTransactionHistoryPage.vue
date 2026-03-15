@@ -1,82 +1,3 @@
-<template>
-  <div class="min-h-screen box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins">
-    <AppTopbar wrapper-class="mb-3">
-      <template #right>
-        <div class="font-semibold text-slate-900">Transaction History</div>
-      </template>
-    </AppTopbar>
-
-    <div class="grid min-h-[calc(100vh-108px)] grid-cols-[248px_minmax(0,1fr)] items-start gap-3.5 max-[900px]:grid-cols-1">
-      <UserSidebar
-        :user-name="userName"
-        active-key="transactions"
-        @select="handleSidebarAction"
-      />
-
-      <main class="min-w-0 rounded-[20px] border border-white/95 bg-white/80 p-4 backdrop-blur-[14px] shadow-glass">
-      <div class="flex flex-wrap items-center justify-between gap-2.5">
-        <div>
-          <h1 class="m-0 text-[26px] font-bold tracking-[-0.03em] text-slate-900">Transaction History</h1>
-          <p class="mt-1 text-sm text-slate-600">Review your booking payments, wallet refunds, and credits.</p>
-        </div>
-        <GlassButton @click="refreshTransactions" :disabled="loading">
-          {{ loading ? 'Loading...' : 'Refresh' }}
-        </GlassButton>
-      </div>
-
-      <section class="mt-4 grid grid-cols-3 gap-3 max-[900px]:grid-cols-1">
-        <article class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass">
-          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Total Paid</p>
-          <p class="mt-2 text-[30px] font-bold text-slate-900">Tk {{ totalPaid }}</p>
-        </article>
-        <article class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass">
-          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Refunded</p>
-          <p class="mt-2 text-[30px] font-bold text-slate-900">Tk {{ totalRefunded }}</p>
-        </article>
-        <article class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass">
-          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Entries</p>
-          <p class="mt-2 text-[30px] font-bold text-slate-900">{{ rows.length }}</p>
-        </article>
-      </section>
-
-      <div v-if="!loading && rows.length === 0" class="mt-4 rounded-[16px] border border-white/95 bg-white/85 p-4 text-slate-600 shadow-glass">
-        No transactions found yet.
-      </div>
-
-      <section v-else class="mt-4 flex flex-col gap-3">
-        <article
-          v-for="row in rows"
-          :key="row.id"
-          class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass"
-        >
-          <div class="flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-start">
-            <div>
-              <div class="flex items-center gap-2">
-                <StatusBadge :label="row.type" :tone="row.tone" />
-                <span class="text-sm text-slate-500">{{ row.reference }}</span>
-              </div>
-              <h3 class="mt-2 text-lg font-semibold text-slate-900">{{ row.title }}</h3>
-              <p class="mt-1 text-sm text-slate-600">{{ row.description }}</p>
-              <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                <span><b>Method:</b> {{ row.method }}</span>
-                <span><b>Status:</b> {{ row.status }}</span>
-              </div>
-            </div>
-
-            <div class="text-right max-[760px]:text-left">
-              <p class="text-[22px] font-bold" :class="row.amount > 0 ? 'text-slate-900' : row.amount < 0 ? 'text-rose-700' : 'text-amber-700'">
-                {{ row.amount > 0 ? '+' : row.amount < 0 ? '-' : '' }}Tk {{ Math.abs(row.amount).toFixed(2) }}
-              </p>
-              <p class="mt-1 text-sm text-slate-500">{{ row.time }}</p>
-            </div>
-          </div>
-        </article>
-      </section>
-      </main>
-    </div>
-  </div>
-</template>
-
 <script>
 import axios from 'axios'
 import AppTopbar from '../components/AppTopbar.vue'
@@ -159,3 +80,82 @@ export default {
   }
 }
 </script>
+
+<template>
+  <div class="min-h-screen box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins">
+    <AppTopbar wrapper-class="mb-3">
+      <template #right>
+        <div class="font-semibold text-slate-900">Transaction History</div>
+      </template>
+    </AppTopbar>
+
+    <div class="grid min-h-[calc(100vh-108px)] grid-cols-[248px_minmax(0,1fr)] items-start gap-3.5 max-[900px]:grid-cols-1">
+      <UserSidebar
+        :user-name="userName"
+        active-key="transactions"
+        @select="handleSidebarAction"
+      />
+
+      <main class="min-w-0 rounded-[20px] border border-white/95 bg-white/80 p-4 backdrop-blur-[14px] shadow-glass">
+      <div class="flex flex-wrap items-center justify-between gap-2.5">
+        <div>
+          <h1 class="m-0 text-[26px] font-bold tracking-[-0.03em] text-slate-900">Transaction History</h1>
+          <p class="mt-1 text-sm text-slate-600">Review your booking payments, wallet refunds, and credits.</p>
+        </div>
+        <GlassButton @click="refreshTransactions" :disabled="loading">
+          {{ loading ? 'Loading...' : 'Refresh' }}
+        </GlassButton>
+      </div>
+
+      <section class="mt-4 grid grid-cols-3 gap-3 max-[900px]:grid-cols-1">
+        <article class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass">
+          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Total Paid</p>
+          <p class="mt-2 text-[30px] font-bold text-slate-900">Tk {{ totalPaid }}</p>
+        </article>
+        <article class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass">
+          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Refunded</p>
+          <p class="mt-2 text-[30px] font-bold text-slate-900">Tk {{ totalRefunded }}</p>
+        </article>
+        <article class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass">
+          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Entries</p>
+          <p class="mt-2 text-[30px] font-bold text-slate-900">{{ rows.length }}</p>
+        </article>
+      </section>
+
+      <div v-if="!loading && rows.length === 0" class="mt-4 rounded-[16px] border border-white/95 bg-white/85 p-4 text-slate-600 shadow-glass">
+        No transactions found yet.
+      </div>
+
+      <section v-else class="mt-4 flex flex-col gap-3">
+        <article
+          v-for="row in rows"
+          :key="row.id"
+          class="rounded-[16px] border border-white/95 bg-white/85 p-4 shadow-glass"
+        >
+          <div class="flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-start">
+            <div>
+              <div class="flex items-center gap-2">
+                <StatusBadge :label="row.type" :tone="row.tone" />
+                <span class="text-sm text-slate-500">{{ row.reference }}</span>
+              </div>
+              <h3 class="mt-2 text-lg font-semibold text-slate-900">{{ row.title }}</h3>
+              <p class="mt-1 text-sm text-slate-600">{{ row.description }}</p>
+              <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+                <span><b>Method:</b> {{ row.method }}</span>
+                <span><b>Status:</b> {{ row.status }}</span>
+              </div>
+            </div>
+
+            <div class="text-right max-[760px]:text-left">
+              <p class="text-[22px] font-bold" :class="row.amount > 0 ? 'text-slate-900' : row.amount < 0 ? 'text-rose-700' : 'text-amber-700'">
+                {{ row.amount > 0 ? '+' : row.amount < 0 ? '-' : '' }}Tk {{ Math.abs(row.amount).toFixed(2) }}
+              </p>
+              <p class="mt-1 text-sm text-slate-500">{{ row.time }}</p>
+            </div>
+          </div>
+        </article>
+      </section>
+      </main>
+    </div>
+  </div>
+</template>

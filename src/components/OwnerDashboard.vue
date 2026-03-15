@@ -1,3 +1,112 @@
+<script>
+import AppTopbar from '../components/AppTopbar.vue'
+import GlassButton from '../components/GlassButton.vue'
+import OwnerAddTurfsSection from '../components/OwnerAddTurfsSection.vue'
+import OwnerBookingsSection from '../components/OwnerBookingsSection.vue'
+import OwnerMyTurfsSection from '../components/OwnerMyTurfsSection.vue'
+import OwnerOverviewSection from '../components/OwnerOverviewSection.vue'
+import OwnerPlaceholderSection from '../components/OwnerPlaceholderSection.vue'
+import OwnerPromoCodesSection from '../components/OwnerPromoCodesSection.vue'
+import OwnerRevenueSection from '../components/OwnerRevenueSection.vue'
+import OwnerSlotControlSection from '../components/OwnerSlotControlSection.vue'
+import UserDashboardProfileMenu from '../components/UserDashboardProfileMenu.vue'
+import addTurfsIcon from '../assets/add-turfs-icon.svg'
+import ownerBookingsIcon from '../assets/owner-bookings-icon.svg'
+import ownerDashboardIcon from '../assets/owner-dashboard-icon.svg'
+import myTurfsIcon from '../assets/my-turfs-icon.svg'
+import ownerReviewsIcon from '../assets/owner-reviews-icon.svg'
+import promoCodesIcon from '../assets/promo-codes-icon.svg'
+import revenueIcon from '../assets/revenue-icon.svg'
+import slotControlIcon from '../assets/slot-control-icon.svg'
+import {
+  createOwnerFinanceSummary,
+  createOwnerForm,
+  getOwnerSessionUser,
+  ownerDashboardMethods,
+  OWNER_MENU_ITEMS
+} from '../support/ownerDashboardSupport'
+
+export default {
+  name: 'OwnerDashboard',
+  components: {
+    AppTopbar,
+    GlassButton,
+    OwnerAddTurfsSection,
+    OwnerBookingsSection,
+    OwnerMyTurfsSection,
+    OwnerOverviewSection,
+    OwnerPlaceholderSection,
+    OwnerPromoCodesSection,
+    OwnerRevenueSection,
+    OwnerSlotControlSection,
+    UserDashboardProfileMenu
+  },
+  data() {
+    const sessionUser = getOwnerSessionUser()
+    return {
+      activeTab: 'dashboard',
+      menuItems: OWNER_MENU_ITEMS,
+      loading: false,
+      message: '',
+      messageType: '',
+      lastCreatedTurfId: null,
+      selectedImageFile: null,
+      selectedImageName: '',
+      imagePreviewUrl: '',
+      fileInputKey: 0,
+      ownerName: localStorage.getItem('user_name') || sessionUser.full_name || 'Owner',
+      ownerEmail: localStorage.getItem('user_email') || sessionUser.email || '',
+      ownerIdFromSession: Number(localStorage.getItem('owner_id') || sessionUser.owner_id || 0),
+      financeLoading: false,
+      ownerFinance: createOwnerFinanceSummary(),
+      ownerTransactions: [],
+      form: createOwnerForm()
+    }
+  },
+  computed: {
+    ownerMenuIcons() {
+      return {
+        dashboard: ownerDashboardIcon,
+        myTurfs: addTurfsIcon,
+        ownerTurfs: myTurfsIcon,
+        bookings: ownerBookingsIcon,
+        revenue: revenueIcon,
+        slotControl: slotControlIcon,
+        promoCodes: promoCodesIcon,
+        reviews: ownerReviewsIcon
+      }
+    },
+    panelTitle() {
+      const current = this.menuItems.find((item) => item.key === this.activeTab)
+      if (!current || current.key === 'dashboard') return 'Owner Dashboard Overview'
+      return current.label
+    }
+  },
+  async mounted() {
+    await this.loadOwnerFinance()
+  },
+  methods: {
+    ...ownerDashboardMethods,
+    openProfileMenu() {
+      this.activeTab = 'dashboard'
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    openSettingsMenu() {
+      // Demo placeholder for future settings action.
+    },
+    logout() {
+      localStorage.clear()
+      this.$router.push('/login')
+    }
+  },
+  beforeUnmount() {
+    if (this.imagePreviewUrl) {
+      URL.revokeObjectURL(this.imagePreviewUrl)
+    }
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen w-full box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins text-[#111827]">
     <AppTopbar
@@ -121,112 +230,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import AppTopbar from '../components/AppTopbar.vue'
-import GlassButton from '../components/GlassButton.vue'
-import OwnerAddTurfsSection from '../components/OwnerAddTurfsSection.vue'
-import OwnerBookingsSection from '../components/OwnerBookingsSection.vue'
-import OwnerMyTurfsSection from '../components/OwnerMyTurfsSection.vue'
-import OwnerOverviewSection from '../components/OwnerOverviewSection.vue'
-import OwnerPlaceholderSection from '../components/OwnerPlaceholderSection.vue'
-import OwnerPromoCodesSection from '../components/OwnerPromoCodesSection.vue'
-import OwnerRevenueSection from '../components/OwnerRevenueSection.vue'
-import OwnerSlotControlSection from '../components/OwnerSlotControlSection.vue'
-import UserDashboardProfileMenu from '../components/UserDashboardProfileMenu.vue'
-import addTurfsIcon from '../assets/add-turfs-icon.svg'
-import ownerBookingsIcon from '../assets/owner-bookings-icon.svg'
-import ownerDashboardIcon from '../assets/owner-dashboard-icon.svg'
-import myTurfsIcon from '../assets/my-turfs-icon.svg'
-import ownerReviewsIcon from '../assets/owner-reviews-icon.svg'
-import promoCodesIcon from '../assets/promo-codes-icon.svg'
-import revenueIcon from '../assets/revenue-icon.svg'
-import slotControlIcon from '../assets/slot-control-icon.svg'
-import {
-  createOwnerFinanceSummary,
-  createOwnerForm,
-  getOwnerSessionUser,
-  ownerDashboardMethods,
-  OWNER_MENU_ITEMS
-} from '../support/ownerDashboardSupport'
-
-export default {
-  name: 'OwnerDashboard',
-  components: {
-    AppTopbar,
-    GlassButton,
-    OwnerAddTurfsSection,
-    OwnerBookingsSection,
-    OwnerMyTurfsSection,
-    OwnerOverviewSection,
-    OwnerPlaceholderSection,
-    OwnerPromoCodesSection,
-    OwnerRevenueSection,
-    OwnerSlotControlSection,
-    UserDashboardProfileMenu
-  },
-  data() {
-    const sessionUser = getOwnerSessionUser()
-    return {
-      activeTab: 'dashboard',
-      menuItems: OWNER_MENU_ITEMS,
-      loading: false,
-      message: '',
-      messageType: '',
-      lastCreatedTurfId: null,
-      selectedImageFile: null,
-      selectedImageName: '',
-      imagePreviewUrl: '',
-      fileInputKey: 0,
-      ownerName: localStorage.getItem('user_name') || sessionUser.full_name || 'Owner',
-      ownerEmail: localStorage.getItem('user_email') || sessionUser.email || '',
-      ownerIdFromSession: Number(localStorage.getItem('owner_id') || sessionUser.owner_id || 0),
-      financeLoading: false,
-      ownerFinance: createOwnerFinanceSummary(),
-      ownerTransactions: [],
-      form: createOwnerForm()
-    }
-  },
-  computed: {
-    ownerMenuIcons() {
-      return {
-        dashboard: ownerDashboardIcon,
-        myTurfs: addTurfsIcon,
-        ownerTurfs: myTurfsIcon,
-        bookings: ownerBookingsIcon,
-        revenue: revenueIcon,
-        slotControl: slotControlIcon,
-        promoCodes: promoCodesIcon,
-        reviews: ownerReviewsIcon
-      }
-    },
-    panelTitle() {
-      const current = this.menuItems.find((item) => item.key === this.activeTab)
-      if (!current || current.key === 'dashboard') return 'Owner Dashboard Overview'
-      return current.label
-    }
-  },
-  async mounted() {
-    await this.loadOwnerFinance()
-  },
-  methods: {
-    ...ownerDashboardMethods,
-    openProfileMenu() {
-      this.activeTab = 'dashboard'
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
-    openSettingsMenu() {
-      // Demo placeholder for future settings action.
-    },
-    logout() {
-      localStorage.clear()
-      this.$router.push('/login')
-    }
-  },
-  beforeUnmount() {
-    if (this.imagePreviewUrl) {
-      URL.revokeObjectURL(this.imagePreviewUrl)
-    }
-  }
-}
-</script>

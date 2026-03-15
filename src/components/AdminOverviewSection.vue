@@ -1,3 +1,34 @@
+<script>
+export default {
+  name: 'AdminOverviewSection',
+  props: {
+    stats: { type: Object, required: true },
+    pendingTurfs: { type: Array, default: () => [] },
+    pendingBookings: { type: Array, default: () => [] },
+    pendingRefunds: { type: Array, default: () => [] },
+    formatMoney: { type: Function, required: true }
+  },
+  computed: {
+    topStats() {
+      return [
+        { label: 'Pending Turfs', value: this.stats.pending_turfs },
+        { label: 'Pending Bookings', value: this.stats.pending_bookings },
+        { label: 'Pending Refunds', value: this.stats.pending_refunds },
+        { label: "Today's Revenue", value: `Tk ${this.formatMoney(this.stats.today_revenue)}` }
+      ]
+    },
+    lowerStats() {
+      return [
+        { label: 'Active Users', value: this.stats.users_active },
+        { label: 'Banned Users', value: this.stats.users_banned },
+        { label: 'Verified Owners', value: this.stats.owners_verified },
+        { label: 'Suspended Owners', value: this.stats.owners_suspended }
+      ]
+    }
+  }
+}
+</script>
+
 <template>
   <section class="space-y-3.5">
     <div class="grid grid-cols-4 gap-3 max-[1200px]:grid-cols-2 max-[900px]:grid-cols-1">
@@ -70,34 +101,3 @@
     </div>
   </section>
 </template>
-
-<script>
-export default {
-  name: 'AdminOverviewSection',
-  props: {
-    stats: { type: Object, required: true },
-    pendingTurfs: { type: Array, default: () => [] },
-    pendingBookings: { type: Array, default: () => [] },
-    pendingRefunds: { type: Array, default: () => [] },
-    formatMoney: { type: Function, required: true }
-  },
-  computed: {
-    topStats() {
-      return [
-        { label: 'Pending Turfs', value: this.stats.pending_turfs },
-        { label: 'Pending Bookings', value: this.stats.pending_bookings },
-        { label: 'Pending Refunds', value: this.stats.pending_refunds },
-        { label: "Today's Revenue", value: `Tk ${this.formatMoney(this.stats.today_revenue)}` }
-      ]
-    },
-    lowerStats() {
-      return [
-        { label: 'Active Users', value: this.stats.users_active },
-        { label: 'Banned Users', value: this.stats.users_banned },
-        { label: 'Verified Owners', value: this.stats.owners_verified },
-        { label: 'Suspended Owners', value: this.stats.owners_suspended }
-      ]
-    }
-  }
-}
-</script>

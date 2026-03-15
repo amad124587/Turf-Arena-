@@ -1,3 +1,104 @@
+<script>
+import AdminAnalyticsSection from '../components/AdminAnalyticsSection.vue'
+import AdminBookingRequestsSection from '../components/AdminBookingRequestsSection.vue'
+import AdminOverviewSection from '../components/AdminOverviewSection.vue'
+import AdminRefundsSection from '../components/AdminRefundsSection.vue'
+import AdminUsersOwnersSection from '../components/AdminUsersOwnersSection.vue'
+import AdminVerifyTurfsSection from '../components/AdminVerifyTurfsSection.vue'
+import adminOverviewIcon from '../assets/admin-overview-icon.svg'
+import analyticsIcon from '../assets/analytics-icon.svg'
+import AppTopbar from '../components/AppTopbar.vue'
+import bookingRequestsIcon from '../assets/booking-requests-icon.svg'
+import GlassButton from '../components/GlassButton.vue'
+import refundRequestsIcon from '../assets/refund-requests-icon.svg'
+import UserDashboardProfileMenu from '../components/UserDashboardProfileMenu.vue'
+import usersOwnersIcon from '../assets/users-owners-icon.svg'
+import verifyTurfsIcon from '../assets/verify-turfs-icon.svg'
+import {
+  adminDashboardMethods,
+  ADMIN_MENU_ITEMS,
+  createAdminAnalytics,
+  createAdminStats,
+  getAdminSessionUser
+} from '../support/adminDashboardSupport'
+
+export default {
+  name: 'AdminDashboard',
+  components: {
+    AdminAnalyticsSection,
+    AdminBookingRequestsSection,
+    AdminOverviewSection,
+    AdminRefundsSection,
+    AdminUsersOwnersSection,
+    AdminVerifyTurfsSection,
+    AppTopbar,
+    GlassButton,
+    UserDashboardProfileMenu
+  },
+  data() {
+    const user = getAdminSessionUser()
+    return {
+      activeTab: 'overview',
+      menuItems: ADMIN_MENU_ITEMS,
+      message: '',
+      messageType: 'info',
+      actionLoadingMap: {},
+      turfNotes: {},
+      refundNotes: {},
+      adminId: Number(localStorage.getItem('admin_id') || user.admin_id || (user.role === 'admin' ? user.user_id : 0) || 0),
+      adminName: user.full_name || localStorage.getItem('user_name') || 'Admin',
+      stats: createAdminStats(),
+      monitorUsers: [],
+      monitorOwners: [],
+      pendingTurfs: [],
+      pendingBookings: [],
+      pendingRefunds: [],
+      analytics: createAdminAnalytics()
+    }
+  },
+  computed: {
+    adminMenuIcons() {
+      return {
+        overview: adminOverviewIcon,
+        verifyTurfs: verifyTurfsIcon,
+        bookingRequests: bookingRequestsIcon,
+        refunds: refundRequestsIcon,
+        usersOwners: usersOwnersIcon,
+        analytics: analyticsIcon
+      }
+    },
+    panelTitle() {
+      const item = this.menuItems.find((m) => m.key === this.activeTab)
+      return item ? `Admin ${item.label}` : 'Admin Dashboard'
+    }
+  },
+  async mounted() {
+    const user = getAdminSessionUser()
+    const hasAdminId = Number(localStorage.getItem('admin_id') || user?.admin_id || (user?.role === 'admin' ? user?.user_id : 0) || 0) > 0
+    if (!user || user.role !== 'admin' || !hasAdminId) {
+      this.$router.push('/login')
+      return
+    }
+
+    await this.loadDashboard()
+  },
+  methods: {
+    ...adminDashboardMethods,
+    openProfileMenu() {
+      this.activeTab = 'overview'
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    openSettingsMenu() {
+      // Demo placeholder for future settings action.
+    },
+    logout() {
+      localStorage.clear()
+      this.$router.push('/login')
+    }
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen w-full box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins text-[#111827]">
     <AppTopbar
@@ -124,104 +225,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import AdminAnalyticsSection from '../components/AdminAnalyticsSection.vue'
-import AdminBookingRequestsSection from '../components/AdminBookingRequestsSection.vue'
-import AdminOverviewSection from '../components/AdminOverviewSection.vue'
-import AdminRefundsSection from '../components/AdminRefundsSection.vue'
-import AdminUsersOwnersSection from '../components/AdminUsersOwnersSection.vue'
-import AdminVerifyTurfsSection from '../components/AdminVerifyTurfsSection.vue'
-import adminOverviewIcon from '../assets/admin-overview-icon.svg'
-import analyticsIcon from '../assets/analytics-icon.svg'
-import AppTopbar from '../components/AppTopbar.vue'
-import bookingRequestsIcon from '../assets/booking-requests-icon.svg'
-import GlassButton from '../components/GlassButton.vue'
-import refundRequestsIcon from '../assets/refund-requests-icon.svg'
-import UserDashboardProfileMenu from '../components/UserDashboardProfileMenu.vue'
-import usersOwnersIcon from '../assets/users-owners-icon.svg'
-import verifyTurfsIcon from '../assets/verify-turfs-icon.svg'
-import {
-  adminDashboardMethods,
-  ADMIN_MENU_ITEMS,
-  createAdminAnalytics,
-  createAdminStats,
-  getAdminSessionUser
-} from '../support/adminDashboardSupport'
-
-export default {
-  name: 'AdminDashboard',
-  components: {
-    AdminAnalyticsSection,
-    AdminBookingRequestsSection,
-    AdminOverviewSection,
-    AdminRefundsSection,
-    AdminUsersOwnersSection,
-    AdminVerifyTurfsSection,
-    AppTopbar,
-    GlassButton,
-    UserDashboardProfileMenu
-  },
-  data() {
-    const user = getAdminSessionUser()
-    return {
-      activeTab: 'overview',
-      menuItems: ADMIN_MENU_ITEMS,
-      message: '',
-      messageType: 'info',
-      actionLoadingMap: {},
-      turfNotes: {},
-      refundNotes: {},
-      adminId: Number(localStorage.getItem('admin_id') || user.admin_id || (user.role === 'admin' ? user.user_id : 0) || 0),
-      adminName: user.full_name || localStorage.getItem('user_name') || 'Admin',
-      stats: createAdminStats(),
-      monitorUsers: [],
-      monitorOwners: [],
-      pendingTurfs: [],
-      pendingBookings: [],
-      pendingRefunds: [],
-      analytics: createAdminAnalytics()
-    }
-  },
-  computed: {
-    adminMenuIcons() {
-      return {
-        overview: adminOverviewIcon,
-        verifyTurfs: verifyTurfsIcon,
-        bookingRequests: bookingRequestsIcon,
-        refunds: refundRequestsIcon,
-        usersOwners: usersOwnersIcon,
-        analytics: analyticsIcon
-      }
-    },
-    panelTitle() {
-      const item = this.menuItems.find((m) => m.key === this.activeTab)
-      return item ? `Admin ${item.label}` : 'Admin Dashboard'
-    }
-  },
-  async mounted() {
-    const user = getAdminSessionUser()
-    const hasAdminId = Number(localStorage.getItem('admin_id') || user?.admin_id || (user?.role === 'admin' ? user?.user_id : 0) || 0) > 0
-    if (!user || user.role !== 'admin' || !hasAdminId) {
-      this.$router.push('/login')
-      return
-    }
-
-    await this.loadDashboard()
-  },
-  methods: {
-    ...adminDashboardMethods,
-    openProfileMenu() {
-      this.activeTab = 'overview'
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
-    openSettingsMenu() {
-      // Demo placeholder for future settings action.
-    },
-    logout() {
-      localStorage.clear()
-      this.$router.push('/login')
-    }
-  }
-}
-</script>

@@ -1,15 +1,3 @@
-<template>
-  <component
-    :is="tag"
-    :type="resolvedType"
-    :disabled="tag === 'button' ? disabled : undefined"
-    :class="buttonClass"
-    v-bind="$attrs"
-  >
-    <slot />
-  </component>
-</template>
-
 <script>
 export default {
   name: 'GlassButton',
@@ -56,3 +44,15 @@ export default {
   }
 }
 </script>
+
+<template>
+  <component
+    :is="tag"
+    :type="resolvedType"
+    :disabled="tag === 'button' ? disabled : undefined"
+    :class="buttonClass"
+    v-bind="$attrs"
+  >
+    <slot />
+  </component>
+</template>

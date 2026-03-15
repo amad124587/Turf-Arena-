@@ -1,55 +1,3 @@
-<template>
-  <div class="relative flex min-h-screen items-center justify-center bg-gray-100 px-4 font-poppins">
-    <button
-      type="button"
-      class="absolute right-4 top-4 rounded-full border border-white/95 bg-white/80 px-4 py-2 font-semibold text-slate-900 backdrop-blur-[14px] shadow-glass transition hover:bg-white"
-      @click="goBack"
-    >
-      Back
-    </button>
-    <div class="w-full max-w-[350px] rounded-xl bg-white p-[30px] shadow-[0_10px_25px_rgba(0,0,0,0.1)]">
-      <h2>Login</h2>
-
-      <form @submit.prevent="login">
-        <input
-          v-model.trim="email"
-          type="email"
-          class="my-2 w-full box-border border border-gray-500 px-2.5 py-2.5"
-          placeholder="Email"
-          autocomplete="email"
-        />
-        <input
-          v-model="password"
-          type="password"
-          class="my-2 w-full box-border border border-gray-500 px-2.5 py-2.5"
-          placeholder="Password"
-          autocomplete="current-password"
-        />
-
-        <button
-          type="submit"
-          class="mt-2 w-full rounded-md bg-[#2f428f] px-3 py-2.5 font-bold text-white transition-colors hover:bg-[#5a7ee8] focus-visible:bg-[#5a7ee8] disabled:cursor-not-allowed disabled:opacity-85"
-          :disabled="loading || !canSubmit"
-        >
-          {{ loading ? 'Checking...' : 'Login' }}
-        </button>
-      </form>
-
-      <p
-        v-if="message"
-        class="mt-2.5 text-center"
-        :class="{
-          'text-green-700': messageType === 'success',
-          'text-red-700': messageType === 'error',
-          'text-blue-800': messageType === 'info'
-        }"
-      >
-        {{ message }}
-      </p>
-    </div>
-  </div>
-</template>
-
 <script>
 import axios from 'axios'
 
@@ -175,3 +123,55 @@ export default {
   }
 }
 </script>
+
+<template>
+  <div class="relative flex min-h-screen items-center justify-center bg-gray-100 px-4 font-poppins">
+    <button
+      type="button"
+      class="absolute right-4 top-4 rounded-full border border-white/95 bg-white/80 px-4 py-2 font-semibold text-slate-900 backdrop-blur-[14px] shadow-glass transition hover:bg-white"
+      @click="goBack"
+    >
+      Back
+    </button>
+    <div class="w-full max-w-[350px] rounded-xl bg-white p-[30px] shadow-[0_10px_25px_rgba(0,0,0,0.1)]">
+      <h2>Login</h2>
+
+      <form @submit.prevent="login">
+        <input
+          v-model.trim="email"
+          type="email"
+          class="my-2 w-full box-border border border-gray-500 px-2.5 py-2.5"
+          placeholder="Email"
+          autocomplete="email"
+        />
+        <input
+          v-model="password"
+          type="password"
+          class="my-2 w-full box-border border border-gray-500 px-2.5 py-2.5"
+          placeholder="Password"
+          autocomplete="current-password"
+        />
+
+        <button
+          type="submit"
+          class="mt-2 w-full rounded-md bg-[#2f428f] px-3 py-2.5 font-bold text-white transition-colors hover:bg-[#5a7ee8] focus-visible:bg-[#5a7ee8] disabled:cursor-not-allowed disabled:opacity-85"
+          :disabled="loading || !canSubmit"
+        >
+          {{ loading ? 'Checking...' : 'Login' }}
+        </button>
+      </form>
+
+      <p
+        v-if="message"
+        class="mt-2.5 text-center"
+        :class="{
+          'text-green-700': messageType === 'success',
+          'text-red-700': messageType === 'error',
+          'text-blue-800': messageType === 'info'
+        }"
+      >
+        {{ message }}
+      </p>
+    </div>
+  </div>
+</template>

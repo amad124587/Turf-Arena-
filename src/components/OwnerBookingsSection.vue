@@ -1,3 +1,87 @@
+<script>
+import {
+  fetchOwnerBookingClients,
+  filterOwnerClientBookings,
+  formatOwnerClientDate,
+  formatOwnerClientMoney,
+  formatOwnerClientTime,
+  getOwnerClientStatusTone
+} from '../support/ownerBookingsSupport'
+import OwnerBookingClientDetailsModal from './OwnerBookingClientDetailsModal.vue'
+
+export default {
+  name: 'OwnerBookingsSection',
+  components: {
+    OwnerBookingClientDetailsModal
+  },
+  props: {
+    ownerId: { type: Number, required: true }
+  },
+  data() {
+    return {
+      loading: false,
+      message: '',
+      messageType: 'info',
+      bookings: [],
+      search: '',
+      detailsOpen: false,
+      selectedBooking: null
+    }
+  },
+  computed: {
+    filteredBookings() {
+      return filterOwnerClientBookings(this.bookings, this.search)
+    }
+  },
+  async mounted() {
+    await this.loadBookings()
+  },
+  methods: {
+    formatDate: formatOwnerClientDate,
+    formatTime: formatOwnerClientTime,
+    formatMoney: formatOwnerClientMoney,
+    statusTone: getOwnerClientStatusTone,
+    async loadBookings() {
+      if (!this.ownerId) return
+      this.loading = true
+      this.message = ''
+      try {
+        const data = await fetchOwnerBookingClients(this.ownerId)
+        if (!data?.success) {
+          this.messageType = 'error'
+          this.message = data?.message || 'Failed to load client details.'
+          return
+        }
+        this.bookings = Array.isArray(data.bookings) ? data.bookings : []
+      } catch (error) {
+        this.messageType = 'error'
+        this.message = error.response?.data?.message || 'Server connection failed while loading booking clients.'
+      } finally {
+        this.loading = false
+      }
+    },
+    openClientDetails(booking) {
+      this.selectedBooking = booking
+      this.detailsOpen = true
+    },
+    closeClientDetails() {
+      this.detailsOpen = false
+      this.selectedBooking = null
+    },
+    emailClient(booking) {
+      const email = booking?.client?.email || ''
+      if (!email) return
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(`Booking #${booking.booking_id} - Turf Arena`)}` 
+    },
+    callClient(booking) {
+      const phone = booking?.client?.phone || ''
+      if (!phone) return
+      window.location.href = `tel:${phone}`
+    }
+  }
+}
+</script>
+
 <template>
   <section class="space-y-3.5">
     <div class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
@@ -93,87 +177,3 @@
     />
   </section>
 </template>
-
-<script>
-import {
-  fetchOwnerBookingClients,
-  filterOwnerClientBookings,
-  formatOwnerClientDate,
-  formatOwnerClientMoney,
-  formatOwnerClientTime,
-  getOwnerClientStatusTone
-} from '../support/ownerBookingsSupport'
-import OwnerBookingClientDetailsModal from './OwnerBookingClientDetailsModal.vue'
-
-export default {
-  name: 'OwnerBookingsSection',
-  components: {
-    OwnerBookingClientDetailsModal
-  },
-  props: {
-    ownerId: { type: Number, required: true }
-  },
-  data() {
-    return {
-      loading: false,
-      message: '',
-      messageType: 'info',
-      bookings: [],
-      search: '',
-      detailsOpen: false,
-      selectedBooking: null
-    }
-  },
-  computed: {
-    filteredBookings() {
-      return filterOwnerClientBookings(this.bookings, this.search)
-    }
-  },
-  async mounted() {
-    await this.loadBookings()
-  },
-  methods: {
-    formatDate: formatOwnerClientDate,
-    formatTime: formatOwnerClientTime,
-    formatMoney: formatOwnerClientMoney,
-    statusTone: getOwnerClientStatusTone,
-    async loadBookings() {
-      if (!this.ownerId) return
-      this.loading = true
-      this.message = ''
-      try {
-        const data = await fetchOwnerBookingClients(this.ownerId)
-        if (!data?.success) {
-          this.messageType = 'error'
-          this.message = data?.message || 'Failed to load client details.'
-          return
-        }
-        this.bookings = Array.isArray(data.bookings) ? data.bookings : []
-      } catch (error) {
-        this.messageType = 'error'
-        this.message = error.response?.data?.message || 'Server connection failed while loading booking clients.'
-      } finally {
-        this.loading = false
-      }
-    },
-    openClientDetails(booking) {
-      this.selectedBooking = booking
-      this.detailsOpen = true
-    },
-    closeClientDetails() {
-      this.detailsOpen = false
-      this.selectedBooking = null
-    },
-    emailClient(booking) {
-      const email = booking?.client?.email || ''
-      if (!email) return
-      window.location.href = `mailto:${email}?subject=${encodeURIComponent(`Booking #${booking.booking_id} - Turf Arena`)}` 
-    },
-    callClient(booking) {
-      const phone = booking?.client?.phone || ''
-      if (!phone) return
-      window.location.href = `tel:${phone}`
-    }
-  }
-}
-</script>

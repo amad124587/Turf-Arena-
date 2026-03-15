@@ -1,3 +1,59 @@
+<script>
+import avatarSrc from '../assets/white avatar.svg'
+import chevronIcon from '../assets/chevron.svg'
+import profileIcon from '../assets/profile.svg'
+import settingsIcon from '../assets/settings.svg'
+import logoutIcon from '../assets/logout.svg'
+
+export default {
+  name: 'UserDashboardProfileMenu',
+  props: {
+    userName: {
+      type: String,
+      default: 'User'
+    }
+  },
+  emits: ['profile', 'settings', 'logout'],
+  data() {
+    return {
+      menuOpen: false,
+      avatarSrc,
+      chevronIcon,
+      profileIcon,
+      settingsIcon,
+      logoutIcon
+    }
+  },
+  mounted() {
+    document.addEventListener('click', this.handleDocumentClick)
+    document.addEventListener('keydown', this.handleEscape)
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleDocumentClick)
+    document.removeEventListener('keydown', this.handleEscape)
+  },
+  methods: {
+    toggleMenu() {
+      this.menuOpen = !this.menuOpen
+    },
+    emitAction(type) {
+      this.menuOpen = false
+      this.$emit(type)
+    },
+    handleDocumentClick(event) {
+      if (!this.menuOpen) return
+      if (this.$refs.root?.contains(event.target)) return
+      this.menuOpen = false
+    },
+    handleEscape(event) {
+      if (event.key === 'Escape') {
+        this.menuOpen = false
+      }
+    }
+  }
+}
+</script>
+
 <template>
   <div ref="root" class="relative z-[70]">
     <button
@@ -56,59 +112,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import avatarSrc from '../assets/white avatar.svg'
-import chevronIcon from '../assets/chevron.svg'
-import profileIcon from '../assets/profile.svg'
-import settingsIcon from '../assets/settings.svg'
-import logoutIcon from '../assets/logout.svg'
-
-export default {
-  name: 'UserDashboardProfileMenu',
-  props: {
-    userName: {
-      type: String,
-      default: 'User'
-    }
-  },
-  emits: ['profile', 'settings', 'logout'],
-  data() {
-    return {
-      menuOpen: false,
-      avatarSrc,
-      chevronIcon,
-      profileIcon,
-      settingsIcon,
-      logoutIcon
-    }
-  },
-  mounted() {
-    document.addEventListener('click', this.handleDocumentClick)
-    document.addEventListener('keydown', this.handleEscape)
-  },
-  beforeUnmount() {
-    document.removeEventListener('click', this.handleDocumentClick)
-    document.removeEventListener('keydown', this.handleEscape)
-  },
-  methods: {
-    toggleMenu() {
-      this.menuOpen = !this.menuOpen
-    },
-    emitAction(type) {
-      this.menuOpen = false
-      this.$emit(type)
-    },
-    handleDocumentClick(event) {
-      if (!this.menuOpen) return
-      if (this.$refs.root?.contains(event.target)) return
-      this.menuOpen = false
-    },
-    handleEscape(event) {
-      if (event.key === 'Escape') {
-        this.menuOpen = false
-      }
-    }
-  }
-}
-</script>

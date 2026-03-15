@@ -1,3 +1,28 @@
+<script>
+export default {
+  name: 'OwnerAddTurfsSection',
+  props: {
+    form: { type: Object, required: true },
+    selectedImageName: { type: String, default: '' },
+    imagePreviewUrl: { type: String, default: '' },
+    loading: { type: Boolean, default: false },
+    message: { type: String, default: '' },
+    messageType: { type: String, default: '' },
+    lastCreatedTurfId: { type: [Number, null], default: null },
+    fileInputKey: { type: Number, default: 0 }
+  },
+  emits: ['update:form', 'image-change', 'clear-image', 'reset', 'submit'],
+  methods: {
+    update(field, value) {
+      this.$emit('update:form', { ...this.form, [field]: value })
+    },
+    updateNumber(field, value) {
+      this.$emit('update:form', { ...this.form, [field]: Number(value) })
+    }
+  }
+}
+</script>
+
 <template>
   <section class="min-h-[calc(100vh-190px)] rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)] max-[900px]:min-h-0">
     <div class="mb-2.5">
@@ -127,28 +152,3 @@
     </div>
   </section>
 </template>
-
-<script>
-export default {
-  name: 'OwnerAddTurfsSection',
-  props: {
-    form: { type: Object, required: true },
-    selectedImageName: { type: String, default: '' },
-    imagePreviewUrl: { type: String, default: '' },
-    loading: { type: Boolean, default: false },
-    message: { type: String, default: '' },
-    messageType: { type: String, default: '' },
-    lastCreatedTurfId: { type: [Number, null], default: null },
-    fileInputKey: { type: Number, default: 0 }
-  },
-  emits: ['update:form', 'image-change', 'clear-image', 'reset', 'submit'],
-  methods: {
-    update(field, value) {
-      this.$emit('update:form', { ...this.form, [field]: value })
-    },
-    updateNumber(field, value) {
-      this.$emit('update:form', { ...this.form, [field]: Number(value) })
-    }
-  }
-}
-</script>

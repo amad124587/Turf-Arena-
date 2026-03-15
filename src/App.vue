@@ -1,3 +1,7 @@
+<script>
+export default {}
+</script>
+
 <template>
   <router-view v-slot="{ Component }">
     <transition name="page-fade" mode="out-in">
@@ -5,7 +9,3 @@
     </transition>
   </router-view>
 </template>
-
-<script>
-export default {}
-</script>

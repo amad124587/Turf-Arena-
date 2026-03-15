@@ -1,3 +1,115 @@
+<script>
+import AppTopbar from './AppTopbar.vue'
+import GlassButton from './GlassButton.vue'
+import UserUpcomingCard from './UserUpcomingCard.vue'
+import UserActivityCard from './UserActivityCard.vue'
+import UserDashboardProfileMenu from './UserDashboardProfileMenu.vue'
+import UserWalletCard from './UserWalletCard.vue'
+import UserReviewModal from './UserReviewModal.vue'
+import UserSidebar from './UserSidebar.vue'
+import bookingsIcon from '../assets/total-bookings.svg'
+import upcomingIcon from '../assets/upcoming-bookings.svg'
+import walletIcon from '../assets/wallet-balance.svg'
+import rewardIcon from '../assets/reward-points.svg'
+import {
+  createUserDashboardStats,
+  createUserPointsBreakdown,
+  getUserSession,
+  userDashboardMethods
+} from '../support/userDashboardSupport'
+
+export default {
+  name: 'UserDashboard',
+  components: {
+    AppTopbar,
+    GlassButton,
+    UserUpcomingCard,
+    UserActivityCard,
+    UserDashboardProfileMenu,
+    UserSidebar,
+    UserWalletCard,
+    UserReviewModal
+  },
+  data() {
+    return {
+      userId: localStorage.getItem('user_id'),
+      userName: localStorage.getItem('user_name'),
+      bookingsIcon,
+      upcomingIcon,
+      walletIcon,
+      rewardIcon,
+      stats: createUserDashboardStats(),
+      points: 0,
+      pointsBreakdown: createUserPointsBreakdown(),
+      nextBooking: null,
+      activities: [],
+      pendingReview: null,
+      rating: 0,
+      comment: '',
+      reviewLoading: false,
+      reviewMsg: '',
+      showReviewModal: false,
+      cancelUpcomingLoading: false,
+      upcomingActionMsg: ''
+    }
+  },
+  computed: {
+    currentUser() {
+      return getUserSession()
+    },
+    isOwner() {
+      return this.currentUser?.role === 'owner'
+    },
+    isAdmin() {
+      return this.currentUser?.role === 'admin'
+    },
+    visibleActivities() {
+      return this.activities.slice(0, 5)
+    }
+  },
+  async mounted() {
+    if (!this.userId) {
+      this.$router.push('/login')
+      return
+    }
+    await this.loadAll()
+  },
+  methods: {
+    ...userDashboardMethods,
+    openProfileMenu() {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    openSettingsMenu() {
+      // Demo placeholder for future settings action.
+    },
+    handleSidebarAction(key) {
+      if (key === 'dashboard') return
+      if (key === 'browse') {
+        this.goToTurfs()
+        return
+      }
+      if (key === 'bookings') {
+        this.goToBookings()
+        return
+      }
+      if (key === 'transactions') {
+        this.goToTransactions()
+        return
+      }
+      if (key === 'wallet') {
+        return
+      }
+      if (key === 'review') {
+        return
+      }
+      if (key === 'support') {
+        return
+      }
+    }
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen w-full box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins text-[#111827]">
     <AppTopbar
@@ -136,115 +248,3 @@
     />
   </div>
 </template>
-
-<script>
-import AppTopbar from './AppTopbar.vue'
-import GlassButton from './GlassButton.vue'
-import UserUpcomingCard from './UserUpcomingCard.vue'
-import UserActivityCard from './UserActivityCard.vue'
-import UserDashboardProfileMenu from './UserDashboardProfileMenu.vue'
-import UserWalletCard from './UserWalletCard.vue'
-import UserReviewModal from './UserReviewModal.vue'
-import UserSidebar from './UserSidebar.vue'
-import bookingsIcon from '../assets/total-bookings.svg'
-import upcomingIcon from '../assets/upcoming-bookings.svg'
-import walletIcon from '../assets/wallet-balance.svg'
-import rewardIcon from '../assets/reward-points.svg'
-import {
-  createUserDashboardStats,
-  createUserPointsBreakdown,
-  getUserSession,
-  userDashboardMethods
-} from '../support/userDashboardSupport'
-
-export default {
-  name: 'UserDashboard',
-  components: {
-    AppTopbar,
-    GlassButton,
-    UserUpcomingCard,
-    UserActivityCard,
-    UserDashboardProfileMenu,
-    UserSidebar,
-    UserWalletCard,
-    UserReviewModal
-  },
-  data() {
-    return {
-      userId: localStorage.getItem('user_id'),
-      userName: localStorage.getItem('user_name'),
-      bookingsIcon,
-      upcomingIcon,
-      walletIcon,
-      rewardIcon,
-      stats: createUserDashboardStats(),
-      points: 0,
-      pointsBreakdown: createUserPointsBreakdown(),
-      nextBooking: null,
-      activities: [],
-      pendingReview: null,
-      rating: 0,
-      comment: '',
-      reviewLoading: false,
-      reviewMsg: '',
-      showReviewModal: false,
-      cancelUpcomingLoading: false,
-      upcomingActionMsg: ''
-    }
-  },
-  computed: {
-    currentUser() {
-      return getUserSession()
-    },
-    isOwner() {
-      return this.currentUser?.role === 'owner'
-    },
-    isAdmin() {
-      return this.currentUser?.role === 'admin'
-    },
-    visibleActivities() {
-      return this.activities.slice(0, 5)
-    }
-  },
-  async mounted() {
-    if (!this.userId) {
-      this.$router.push('/login')
-      return
-    }
-    await this.loadAll()
-  },
-  methods: {
-    ...userDashboardMethods,
-    openProfileMenu() {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
-    openSettingsMenu() {
-      // Demo placeholder for future settings action.
-    },
-    handleSidebarAction(key) {
-      if (key === 'dashboard') return
-      if (key === 'browse') {
-        this.goToTurfs()
-        return
-      }
-      if (key === 'bookings') {
-        this.goToBookings()
-        return
-      }
-      if (key === 'transactions') {
-        this.goToTransactions()
-        return
-      }
-      if (key === 'wallet') {
-        return
-      }
-      if (key === 'review') {
-        return
-      }
-      if (key === 'support') {
-        return
-      }
-    }
-  }
-}
-</script>

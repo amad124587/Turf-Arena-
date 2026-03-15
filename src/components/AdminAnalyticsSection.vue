@@ -1,3 +1,13 @@
+<script>
+export default {
+  name: 'AdminAnalyticsSection',
+  props: {
+    analytics: { type: Object, required: true },
+    formatMoney: { type: Function, required: true }
+  }
+}
+</script>
+
 <template>
   <section class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
     <div>
@@ -68,13 +78,3 @@
     </div>
   </section>
 </template>
-
-<script>
-export default {
-  name: 'AdminAnalyticsSection',
-  props: {
-    analytics: { type: Object, required: true },
-    formatMoney: { type: Function, required: true }
-  }
-}
-</script>

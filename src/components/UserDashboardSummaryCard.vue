@@ -1,3 +1,19 @@
+<script>
+export default {
+  name: 'UserDashboardSummaryCard',
+  props: {
+    title: { type: String, default: '' },
+    value: { type: [String, Number], default: '' },
+    helperText: { type: String, default: '' },
+    helperClass: { type: String, default: 'text-slate-500' },
+    iconSrc: { type: String, required: true },
+    iconAlt: { type: String, default: '' },
+    iconShellClass: { type: String, default: 'bg-slate-100' }
+  },
+  emits: ['click']
+}
+</script>
+
 <template>
   <button
     type="button"
@@ -17,19 +33,3 @@
     <p v-if="helperText" class="mt-auto pt-4 text-[14px] font-medium" :class="helperClass">{{ helperText }}</p>
   </button>
 </template>
-
-<script>
-export default {
-  name: 'UserDashboardSummaryCard',
-  props: {
-    title: { type: String, default: '' },
-    value: { type: [String, Number], default: '' },
-    helperText: { type: String, default: '' },
-    helperClass: { type: String, default: 'text-slate-500' },
-    iconSrc: { type: String, required: true },
-    iconAlt: { type: String, default: '' },
-    iconShellClass: { type: String, default: 'bg-slate-100' }
-  },
-  emits: ['click']
-}
-</script>

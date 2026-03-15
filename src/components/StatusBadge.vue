@@ -1,9 +1,3 @@
-<template>
-  <span :class="badgeClass">
-    <slot>{{ label }}</slot>
-  </span>
-</template>
-
 <script>
 export default {
   name: 'StatusBadge',
@@ -40,3 +34,9 @@ export default {
   }
 }
 </script>
+
+<template>
+  <span :class="badgeClass">
+    <slot>{{ label }}</slot>
+  </span>
+</template>

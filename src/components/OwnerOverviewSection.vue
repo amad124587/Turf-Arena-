@@ -1,38 +1,3 @@
-<template>
-  <section class="space-y-3">
-    <div class="grid grid-cols-4 gap-3 max-[1200px]:grid-cols-2 max-[900px]:grid-cols-1">
-      <article
-        v-for="item in statCards"
-        :key="item.label"
-        class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]"
-      >
-        <p class="m-0 text-sm text-slate-600">{{ item.label }}</p>
-        <b class="mt-2 block text-[22px] text-slate-900">{{ item.value }}</b>
-      </article>
-    </div>
-
-    <div class="grid grid-cols-4 gap-3 max-[1200px]:grid-cols-2 max-[700px]:grid-cols-1">
-      <article
-        v-for="item in taskCards"
-        :key="item.title"
-        class="rounded-[14px] border border-white/95 bg-white/88 p-4 shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_24px_rgba(20,32,89,0.14)]"
-      >
-        <div class="flex items-center gap-2 text-[14px] font-semibold text-[#25314d]">
-          <span
-            class="flex h-7 w-7 items-center justify-center rounded-full shadow-[0_6px_12px_rgba(87,102,138,0.14)]"
-            :class="item.badgeClass"
-          >
-            <span class="h-2.5 w-2.5 rounded-full" :class="item.dotClass"></span>
-          </span>
-          <span>{{ item.title }}</span>
-        </div>
-        <p class="mt-3 text-[20px] font-bold leading-none text-[#18223f]">{{ item.value }}</p>
-        <p class="mt-3 text-[13px]" :class="item.noteClass">{{ item.note }}</p>
-      </article>
-    </div>
-  </section>
-</template>
-
 <script>
 export default {
   name: 'OwnerOverviewSection',
@@ -94,3 +59,38 @@ export default {
   }
 }
 </script>
+
+<template>
+  <section class="space-y-3">
+    <div class="grid grid-cols-4 gap-3 max-[1200px]:grid-cols-2 max-[900px]:grid-cols-1">
+      <article
+        v-for="item in statCards"
+        :key="item.label"
+        class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]"
+      >
+        <p class="m-0 text-sm text-slate-600">{{ item.label }}</p>
+        <b class="mt-2 block text-[22px] text-slate-900">{{ item.value }}</b>
+      </article>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3 max-[1200px]:grid-cols-2 max-[700px]:grid-cols-1">
+      <article
+        v-for="item in taskCards"
+        :key="item.title"
+        class="rounded-[14px] border border-white/95 bg-white/88 p-4 shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_24px_rgba(20,32,89,0.14)]"
+      >
+        <div class="flex items-center gap-2 text-[14px] font-semibold text-[#25314d]">
+          <span
+            class="flex h-7 w-7 items-center justify-center rounded-full shadow-[0_6px_12px_rgba(87,102,138,0.14)]"
+            :class="item.badgeClass"
+          >
+            <span class="h-2.5 w-2.5 rounded-full" :class="item.dotClass"></span>
+          </span>
+          <span>{{ item.title }}</span>
+        </div>
+        <p class="mt-3 text-[20px] font-bold leading-none text-[#18223f]">{{ item.value }}</p>
+        <p class="mt-3 text-[13px]" :class="item.noteClass">{{ item.note }}</p>
+      </article>
+    </div>
+  </section>
+</template>
