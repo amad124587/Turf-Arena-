@@ -144,6 +144,7 @@ if (table_exists($conn, 'refund_requests') && table_exists($conn, 'bookings') &&
         $cancelStmt->close();
         $summary['cancelled_bookings'] = (int)($cancelRow['c'] ?? 0);
     }
+
 }
 
 send_response(true, 'Owner finance loaded.', 200, [
