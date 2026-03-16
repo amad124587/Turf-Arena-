@@ -15,7 +15,7 @@ export default {
   <section class="min-h-[calc(100vh-190px)] rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)] max-[900px]:min-h-0">
     <div class="mb-2.5">
       <h3 class="m-0 text-[22px] text-slate-900">Owner Wallet & Cancellation Earnings</h3>
-      <p class="mt-2 text-slate-600">Admin approved cancellation gives 20% share to owner wallet.</p>
+      <p class="mt-2 text-slate-600">Current wallet includes booking income from all your turfs, while cancellation earnings only count the retained 20% share.</p>
     </div>
 
     <div class="mt-2.5 grid grid-cols-4 gap-3 max-[1200px]:grid-cols-2 max-[900px]:grid-cols-1">
@@ -26,7 +26,7 @@ export default {
         <p class="m-0 text-sm text-slate-900">Total Cancellation Earnings: <b>Tk {{ formatMoney(ownerFinance.total_cancellation_earnings) }}</b></p>
       </article>
       <article class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
-        <p class="m-0 text-sm text-slate-900">Cancelled Bookings: <b>{{ ownerFinance.cancelled_bookings }}</b></p>
+        <p class="m-0 text-sm text-slate-900">Paid Cancellation Credits: <b>{{ ownerFinance.cancelled_bookings }}</b></p>
       </article>
       <article class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
         <p class="m-0 text-sm text-slate-900">Pending Refund Requests: <b>{{ ownerFinance.pending_refund_requests }}</b></p>

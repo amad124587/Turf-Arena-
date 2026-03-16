@@ -2,6 +2,7 @@
 import AdminAnalyticsSection from '../components/AdminAnalyticsSection.vue'
 import AdminBookingRequestsSection from '../components/AdminBookingRequestsSection.vue'
 import AdminOverviewSection from '../components/AdminOverviewSection.vue'
+import AdminOwnerEarningsSection from '../components/AdminOwnerEarningsSection.vue'
 import AdminRefundsSection from '../components/AdminRefundsSection.vue'
 import AdminUsersOwnersSection from '../components/AdminUsersOwnersSection.vue'
 import AdminVerifyTurfsSection from '../components/AdminVerifyTurfsSection.vue'
@@ -10,6 +11,7 @@ import analyticsIcon from '../assets/analytics-icon.svg'
 import AppTopbar from '../components/AppTopbar.vue'
 import bookingRequestsIcon from '../assets/booking-requests-icon.svg'
 import GlassButton from '../components/GlassButton.vue'
+import ownerEarningsIcon from '../assets/owner-earnings-icon.svg'
 import refundRequestsIcon from '../assets/refund-requests-icon.svg'
 import UserDashboardProfileMenu from '../components/UserDashboardProfileMenu.vue'
 import usersOwnersIcon from '../assets/users-owners-icon.svg'
@@ -18,6 +20,7 @@ import {
   adminDashboardMethods,
   ADMIN_MENU_ITEMS,
   createAdminAnalytics,
+  createAdminOwnerEarningsState,
   createAdminStats,
   getAdminSessionUser
 } from '../support/adminDashboardSupport'
@@ -28,6 +31,7 @@ export default {
     AdminAnalyticsSection,
     AdminBookingRequestsSection,
     AdminOverviewSection,
+    AdminOwnerEarningsSection,
     AdminRefundsSection,
     AdminUsersOwnersSection,
     AdminVerifyTurfsSection,
@@ -53,7 +57,8 @@ export default {
       pendingTurfs: [],
       pendingBookings: [],
       pendingRefunds: [],
-      analytics: createAdminAnalytics()
+      analytics: createAdminAnalytics(),
+      ownerEarnings: createAdminOwnerEarningsState()
     }
   },
   computed: {
@@ -63,13 +68,14 @@ export default {
         verifyTurfs: verifyTurfsIcon,
         bookingRequests: bookingRequestsIcon,
         refunds: refundRequestsIcon,
+        ownerEarnings: ownerEarningsIcon,
         usersOwners: usersOwnersIcon,
         analytics: analyticsIcon
       }
     },
     panelTitle() {
       const item = this.menuItems.find((m) => m.key === this.activeTab)
-      return item ? `Admin ${item.label}` : 'Admin Dashboard'
+      return item ? item.label : 'Dashboard'
     }
   },
   async mounted() {
@@ -134,7 +140,7 @@ export default {
             type="button"
             class="flex items-center gap-3 rounded-[14px] border border-transparent px-3.5 py-3 text-left font-medium text-slate-900 backdrop-blur-[14px] shadow-glass transition duration-200"
             :class="activeTab === item.key ? 'scale-[1.02] bg-slate-900 text-white shadow-[0_16px_24px_rgba(15,23,42,0.18)]' : 'bg-white/75 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-white/95 hover:font-semibold hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]'"
-            @click="activeTab = item.key"
+            @click="openAdminTab(item.key)"
           >
             <img
               :src="adminMenuIcons[item.key]"
@@ -194,6 +200,22 @@ export default {
             :format-money="formatMoney"
             @update-note="refundNotes = { ...refundNotes, [$event.id]: $event.value }"
             @review="reviewRefund($event.item, $event.action)"
+          />
+
+          <AdminOwnerEarningsSection
+            v-else-if="activeTab === 'ownerEarnings'"
+            key="admin-owner-earnings"
+            :owners="ownerEarnings.owners"
+            :selected-owner="ownerEarnings.selectedOwner"
+            :selected-turf-id="ownerEarnings.selectedTurfId"
+            :selected-month="ownerEarnings.selectedMonth"
+            :loading="ownerEarnings.loading"
+            :format-money="formatMoney"
+            @select-owner="selectOwnerEarnings"
+            @select-turf="selectOwnerTurf"
+            @refresh="loadOwnerEarnings(ownerEarnings.selectedOwner?.owner_id || 0, false)"
+            @set-month="setOwnerEarningsMonth"
+            @show-lifetime="showOwnerEarningsLifetime"
           />
 
           <AdminUsersOwnersSection

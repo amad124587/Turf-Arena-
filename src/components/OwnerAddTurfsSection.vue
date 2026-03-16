@@ -141,14 +141,5 @@ export default {
     <p v-if="lastCreatedTurfId" class="mt-2.5 font-semibold text-green-700">
       Turf created successfully. ID: <b>#{{ lastCreatedTurfId }}</b>
     </p>
-
-    <div class="mt-4 border-t border-slate-900/10 pt-3">
-      <h4 class="m-0 text-base text-slate-900">Future Buttons Zone</h4>
-      <div class="mt-4 grid grid-cols-3 gap-2.5 max-[1200px]:grid-cols-2 max-[900px]:grid-cols-1">
-        <button type="button" class="min-h-11 rounded-[10px] border border-dashed border-blue-500/45 bg-white/80 p-[10px_12px] font-semibold text-slate-700 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-blue-500/70 hover:text-blue-900 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">+ Add My Turf Action</button>
-        <button type="button" class="min-h-11 rounded-[10px] border border-dashed border-blue-500/45 bg-white/80 p-[10px_12px] font-semibold text-slate-700 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-blue-500/70 hover:text-blue-900 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">+ Add Bulk Action</button>
-        <button type="button" class="min-h-11 rounded-[10px] border border-dashed border-blue-500/45 bg-white/80 p-[10px_12px] font-semibold text-slate-700 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-blue-500/70 hover:text-blue-900 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">+ Add Analytics</button>
-      </div>
-    </div>
   </section>
 </template>

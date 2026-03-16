@@ -229,7 +229,6 @@ export default {
 
         <div class="mt-3 flex justify-end gap-2 max-md:justify-start">
           <button type="button" class="appearance-none rounded-full border border-transparent bg-white/85 px-7 py-3 text-[17px] font-semibold text-slate-900 shadow-glass outline-none backdrop-blur-[14px] transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]" @click="loadAll">Refresh</button>
-          <button type="button" class="appearance-none rounded-full border border-transparent bg-white/85 px-7 py-3 text-[17px] font-semibold text-slate-900 shadow-glass outline-none backdrop-blur-[14px] transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]" @click="logout">Logout</button>
         </div>
       </main>
     </div>

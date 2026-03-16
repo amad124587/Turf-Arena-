@@ -78,7 +78,7 @@ export default {
     },
     panelTitle() {
       const current = this.menuItems.find((item) => item.key === this.activeTab)
-      if (!current || current.key === 'dashboard') return 'Owner Dashboard Overview'
+      if (!current || current.key === 'dashboard') return 'Overview'
       return current.label
     }
   },
@@ -87,6 +87,12 @@ export default {
   },
   methods: {
     ...ownerDashboardMethods,
+    handleMenuClick(key) {
+      if (key === 'reviews') {
+        return
+      }
+      this.activeTab = key
+    },
     openProfileMenu() {
       this.activeTab = 'dashboard'
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -141,7 +147,7 @@ export default {
             type="button"
             class="flex items-center gap-3 rounded-[14px] border border-transparent px-3.5 py-3 text-left font-medium text-slate-900 backdrop-blur-[14px] shadow-glass transition duration-200"
             :class="activeTab === item.key ? 'scale-[1.02] bg-slate-900 text-white shadow-[0_16px_24px_rgba(15,23,42,0.18)]' : 'bg-white/75 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-white/95 hover:font-semibold hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]'"
-            @click="activeTab = item.key"
+            @click="handleMenuClick(item.key)"
           >
             <img
               :src="ownerMenuIcons[item.key]"

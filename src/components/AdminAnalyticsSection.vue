@@ -12,7 +12,7 @@ export default {
   <section class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
     <div>
       <h3 class="m-0 text-[18px] font-bold text-slate-900">System Analytics</h3>
-      <p class="mt-2 text-slate-600">Top-rated turfs, active users, revenue trends, booking growth.</p>
+      <p class="mt-2 text-slate-600">Top-rated turfs, active users, monthly confirmed revenue, and monthly booking requests.</p>
     </div>
 
     <div class="mt-3 grid grid-cols-2 gap-3 max-[1200px]:grid-cols-1">
@@ -47,7 +47,7 @@ export default {
       </article>
 
       <article class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
-        <h3 class="m-0 text-[18px] font-bold text-slate-900">Revenue Trend</h3>
+        <h3 class="m-0 text-[18px] font-bold text-slate-900">Monthly Confirmed Revenue</h3>
         <ul v-if="analytics.revenue_trend.length" class="mt-3 flex list-none flex-col gap-2.5 p-0">
           <li
             v-for="r in analytics.revenue_trend"
@@ -62,7 +62,7 @@ export default {
       </article>
 
       <article class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
-        <h3 class="m-0 text-[18px] font-bold text-slate-900">Booking Growth</h3>
+        <h3 class="m-0 text-[18px] font-bold text-slate-900">Monthly Booking Requests</h3>
         <ul v-if="analytics.booking_growth.length" class="mt-3 flex list-none flex-col gap-2.5 p-0">
           <li
             v-for="g in analytics.booking_growth"

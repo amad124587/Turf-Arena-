@@ -94,7 +94,6 @@ This file maps visible buttons, tabs, and screens to the main files that control
   - `src/components/AdminDashboard.vue`
   - `src/support/adminDashboardSupport.js`
   - `backend/admin_dashboard.php`
-  - `backend/admin_stats.php`
   - `backend/admin_common.php`
 
 - `Overview`
@@ -119,4 +118,3 @@ This file maps visible buttons, tabs, and screens to the main files that control
 - `Analytics`
   - `src/components/AdminAnalyticsSection.vue`
   - `backend/admin_dashboard.php`
-  - `backend/admin_stats.php`

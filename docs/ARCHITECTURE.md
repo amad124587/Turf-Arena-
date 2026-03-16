@@ -72,9 +72,6 @@ Core reusable UI pieces:
 - `src/components/StatusBadge.vue`
   - Shared badge color/tone mapping
 
-- `src/components/StatCard.vue`
-  - Reusable stat card used in user dashboard
-
 ## 5. User Flow Files
 
 ### Authentication
@@ -242,7 +239,6 @@ The admin dashboard is also tab-driven.
 Backend endpoints used by admin shell:
 
 - `backend/admin_dashboard.php`
-- `backend/admin_stats.php`
 - `backend/admin_common.php`
 - `backend/admin_turf_action.php`
 - `backend/admin_booking_action.php`
@@ -320,7 +316,6 @@ The backend currently uses a flat endpoint style instead of full MVC.
 
 - `backend/admin_common.php`
 - `backend/admin_dashboard.php`
-- `backend/admin_stats.php`
 - `backend/admin_turf_action.php`
 - `backend/admin_booking_action.php`
 - `backend/admin_refund_action.php`

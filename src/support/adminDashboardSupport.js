@@ -11,6 +11,7 @@ export const ADMIN_MENU_ITEMS = [
   { key: 'verifyTurfs', label: 'Verify Turfs' },
   { key: 'bookingRequests', label: 'Booking Requests' },
   { key: 'refunds', label: 'Refund Requests' },
+  { key: 'ownerEarnings', label: 'Owner Earnings' },
   { key: 'usersOwners', label: 'Users & Owners' },
   { key: 'analytics', label: 'Analytics' }
 ]
@@ -44,6 +45,16 @@ export function createAdminAnalytics() {
     most_active_users: [],
     revenue_trend: [],
     booking_growth: []
+  }
+}
+
+export function createAdminOwnerEarningsState() {
+  return {
+    owners: [],
+    selectedOwner: null,
+    selectedTurfId: 0,
+    loading: false,
+    selectedMonth: ''
   }
 }
 
@@ -142,10 +153,95 @@ export const adminDashboardMethods = {
       this.pendingBookings = Array.isArray(response.data.pending_bookings) ? response.data.pending_bookings : []
       this.pendingRefunds = Array.isArray(response.data.pending_refunds) ? response.data.pending_refunds : []
       this.analytics = response.data.analytics || this.analytics
+      await this.loadOwnerEarnings(this.ownerEarnings.selectedOwner?.owner_id || 0, false)
 
       this.setMessage('success', 'Refreshed')
     } catch (error) {
       this.setMessage('error', this.getApiErrorMessage(error, 'Server connection failed.'))
+    }
+  },
+  async loadOwnerEarnings(ownerId = 0, preserveMessage = true) {
+    if (!this.adminId) return
+
+    this.ownerEarnings = {
+      ...this.ownerEarnings,
+      loading: true
+    }
+
+    try {
+      const response = await axios.get(`${API_BASE}/admin_owner_earnings.php`, {
+        params: {
+          admin_id: this.adminId,
+          owner_id: ownerId || 0,
+          month: this.ownerEarnings.selectedMonth || ''
+        },
+        timeout: 10000
+      })
+
+      if (!response.data?.success) {
+        if (!preserveMessage) {
+          this.setMessage('error', response.data?.message || 'Failed to load owner earnings.')
+        }
+        return
+      }
+
+      const owners = Array.isArray(response.data.owners) ? response.data.owners : []
+      const ownerDetails = response.data.owner_details || null
+      const fallbackOwner = !ownerDetails && owners.length ? owners[0] : null
+
+      this.ownerEarnings = {
+        owners,
+        selectedOwner: ownerDetails || this.ownerEarnings.selectedOwner || fallbackOwner,
+        selectedTurfId: ownerDetails?.turfs?.[0]?.turf_id || this.ownerEarnings.selectedTurfId || fallbackOwner?.turfs?.[0]?.turf_id || 0,
+        loading: false,
+        selectedMonth: this.ownerEarnings.selectedMonth || ''
+      }
+
+      if (!ownerDetails && fallbackOwner && (!this.ownerEarnings.selectedOwner || !this.ownerEarnings.selectedOwner.turfs)) {
+        await this.loadOwnerEarnings(fallbackOwner.owner_id, preserveMessage)
+        return
+      }
+
+      if (!preserveMessage) {
+        this.setMessage('success', 'Owner earnings refreshed.')
+      }
+    } catch (error) {
+      this.ownerEarnings = {
+        ...this.ownerEarnings,
+        loading: false
+      }
+      if (!preserveMessage) {
+        this.setMessage('error', this.getApiErrorMessage(error, 'Failed to load owner earnings.'))
+      }
+    }
+  },
+  async selectOwnerEarnings(ownerId) {
+    await this.loadOwnerEarnings(ownerId, true)
+  },
+  selectOwnerTurf(turfId) {
+    this.ownerEarnings = {
+      ...this.ownerEarnings,
+      selectedTurfId: turfId
+    }
+  },
+  async setOwnerEarningsMonth(monthText) {
+    this.ownerEarnings = {
+      ...this.ownerEarnings,
+      selectedMonth: monthText
+    }
+    await this.loadOwnerEarnings(this.ownerEarnings.selectedOwner?.owner_id || 0, true)
+  },
+  async showOwnerEarningsLifetime() {
+    this.ownerEarnings = {
+      ...this.ownerEarnings,
+      selectedMonth: ''
+    }
+    await this.loadOwnerEarnings(this.ownerEarnings.selectedOwner?.owner_id || 0, true)
+  },
+  async openAdminTab(key) {
+    this.activeTab = key
+    if (key === 'ownerEarnings' && !this.ownerEarnings.owners.length && !this.ownerEarnings.loading) {
+      await this.loadOwnerEarnings(0, false)
     }
   },
   async reviewTurf(item, action) {

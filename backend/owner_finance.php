@@ -55,8 +55,14 @@ $summary = [
 
 $transactions = [];
 
-if (table_exists($conn, 'owner_wallets')) {
-    $walletStmt = $conn->prepare('SELECT COALESCE(balance,0) AS balance FROM owner_wallets WHERE owner_id = ? LIMIT 1');
+if (table_exists($conn, 'bookings') && table_exists($conn, 'slots') && table_exists($conn, 'turfs')) {
+    $walletSql = "SELECT COALESCE(SUM(b.booked_price), 0) AS amount
+                  FROM bookings b
+                  JOIN slots s ON s.slot_id = b.slot_id
+                  JOIN turfs t ON t.turf_id = s.turf_id
+                  WHERE t.owner_id = ?
+                    AND b.booking_status IN ('pending', 'confirmed', 'completed', 'resell_listed', 'resold')";
+    $walletStmt = $conn->prepare($walletSql);
     if ($walletStmt) {
         $walletStmt->bind_param('i', $ownerId);
         $walletStmt->execute();
@@ -64,40 +70,8 @@ if (table_exists($conn, 'owner_wallets')) {
         $walletRow = $walletRes ? $walletRes->fetch_assoc() : null;
         $walletStmt->close();
         if ($walletRow) {
-            $summary['wallet_balance'] = (float)($walletRow['balance'] ?? 0);
+            $summary['wallet_balance'] = (float)($walletRow['amount'] ?? 0);
         }
-    }
-}
-
-if (table_exists($conn, 'owner_wallet_transactions')) {
-    $sumStmt = $conn->prepare("SELECT COALESCE(SUM(CASE WHEN txn_type = 'cancellation_share' THEN amount ELSE 0 END),0) AS total_amount FROM owner_wallet_transactions WHERE owner_id = ?");
-    if ($sumStmt) {
-        $sumStmt->bind_param('i', $ownerId);
-        $sumStmt->execute();
-        $sumRes = $sumStmt->get_result();
-        $sumRow = $sumRes ? $sumRes->fetch_assoc() : null;
-        $sumStmt->close();
-        if ($sumRow) {
-            $summary['total_cancellation_earnings'] = (float)($sumRow['total_amount'] ?? 0);
-        }
-    }
-
-    $txnStmt = $conn->prepare('SELECT owner_wallet_txn_id, txn_type, amount, reference_note, created_at FROM owner_wallet_transactions WHERE owner_id = ? ORDER BY owner_wallet_txn_id DESC LIMIT 8');
-    if ($txnStmt) {
-        $txnStmt->bind_param('i', $ownerId);
-        $txnStmt->execute();
-        $txnRes = $txnStmt->get_result();
-        while ($row = $txnRes ? $txnRes->fetch_assoc() : null) {
-            if (!$row) break;
-            $transactions[] = [
-                'txn_id' => (int)$row['owner_wallet_txn_id'],
-                'txn_type' => $row['txn_type'],
-                'amount' => (float)($row['amount'] ?? 0),
-                'reference_note' => $row['reference_note'],
-                'created_at' => $row['created_at']
-            ];
-        }
-        $txnStmt->close();
     }
 }
 
@@ -114,6 +88,25 @@ if (table_exists($conn, 'turfs')) {
 }
 
 if (table_exists($conn, 'refund_requests') && table_exists($conn, 'bookings') && table_exists($conn, 'slots') && table_exists($conn, 'turfs')) {
+    $cancelEarningSql = "SELECT COALESCE(SUM(b.booked_price - COALESCE(r.requested_amount, 0)), 0) AS total_amount
+                         FROM refund_requests r
+                         JOIN bookings b ON b.booking_id = r.booking_id
+                         JOIN slots s ON s.slot_id = b.slot_id
+                         JOIN turfs t ON t.turf_id = s.turf_id
+                         WHERE t.owner_id = ? AND r.status = 'paid'";
+    $cancelEarningStmt = $conn->prepare($cancelEarningSql);
+    if ($cancelEarningStmt) {
+        $cancelEarningStmt->bind_param('i', $ownerId);
+        $cancelEarningStmt->execute();
+        $cancelEarningRes = $cancelEarningStmt->get_result();
+        $cancelEarningRow = $cancelEarningRes ? $cancelEarningRes->fetch_assoc() : null;
+        $cancelEarningStmt->close();
+        if ($cancelEarningRow) {
+            $summary['total_cancellation_earnings'] = (float)($cancelEarningRow['total_amount'] ?? 0);
+            $summary['wallet_balance'] += $summary['total_cancellation_earnings'];
+        }
+    }
+
     $pendingSql = "SELECT COUNT(*) AS c
                    FROM refund_requests r
                    JOIN bookings b ON b.booking_id = r.booking_id
@@ -131,10 +124,11 @@ if (table_exists($conn, 'refund_requests') && table_exists($conn, 'bookings') &&
     }
 
     $cancelSql = "SELECT COUNT(*) AS c
-                  FROM bookings b
+                  FROM refund_requests r
+                  JOIN bookings b ON b.booking_id = r.booking_id
                   JOIN slots s ON s.slot_id = b.slot_id
                   JOIN turfs t ON t.turf_id = s.turf_id
-                  WHERE t.owner_id = ? AND b.booking_status = 'cancelled'";
+                  WHERE t.owner_id = ? AND r.status = 'paid'";
     $cancelStmt = $conn->prepare($cancelSql);
     if ($cancelStmt) {
         $cancelStmt->bind_param('i', $ownerId);
@@ -146,6 +140,78 @@ if (table_exists($conn, 'refund_requests') && table_exists($conn, 'bookings') &&
     }
 
 }
+
+if (table_exists($conn, 'bookings') && table_exists($conn, 'slots') && table_exists($conn, 'turfs')) {
+    $bookingTxnSql = "SELECT
+                        b.booking_id AS txn_id,
+                        'booking_income' AS txn_type,
+                        b.booked_price AS amount,
+                        CONCAT('Booking #', b.booking_id, ' income from ', t.turf_name) AS reference_note,
+                        b.created_at
+                      FROM bookings b
+                      JOIN slots s ON s.slot_id = b.slot_id
+                      JOIN turfs t ON t.turf_id = s.turf_id
+                      WHERE t.owner_id = ?
+                        AND b.booking_status IN ('pending', 'confirmed', 'completed', 'resell_listed', 'resold')
+                      ORDER BY b.created_at DESC
+                      LIMIT 8";
+    $bookingTxnStmt = $conn->prepare($bookingTxnSql);
+    if ($bookingTxnStmt) {
+        $bookingTxnStmt->bind_param('i', $ownerId);
+        $bookingTxnStmt->execute();
+        $bookingTxnRes = $bookingTxnStmt->get_result();
+        while ($row = $bookingTxnRes ? $bookingTxnRes->fetch_assoc() : null) {
+            if (!$row) break;
+            $transactions[] = [
+                'txn_id' => (int)$row['txn_id'],
+                'txn_type' => $row['txn_type'],
+                'amount' => (float)($row['amount'] ?? 0),
+                'reference_note' => $row['reference_note'],
+                'created_at' => $row['created_at']
+            ];
+        }
+        $bookingTxnStmt->close();
+    }
+}
+
+if (table_exists($conn, 'refund_requests') && table_exists($conn, 'bookings') && table_exists($conn, 'slots') && table_exists($conn, 'turfs')) {
+    $cancelTxnSql = "SELECT
+                       r.refund_id AS txn_id,
+                       'cancellation_share' AS txn_type,
+                       (b.booked_price - COALESCE(r.requested_amount, 0)) AS amount,
+                       CONCAT('Cancellation earning from booking #', b.booking_id, ' (', t.turf_name, ')') AS reference_note,
+                       r.updated_at AS created_at
+                     FROM refund_requests r
+                     JOIN bookings b ON b.booking_id = r.booking_id
+                     JOIN slots s ON s.slot_id = b.slot_id
+                     JOIN turfs t ON t.turf_id = s.turf_id
+                     WHERE t.owner_id = ?
+                       AND r.status = 'paid'
+                     ORDER BY r.updated_at DESC
+                     LIMIT 8";
+    $cancelTxnStmt = $conn->prepare($cancelTxnSql);
+    if ($cancelTxnStmt) {
+        $cancelTxnStmt->bind_param('i', $ownerId);
+        $cancelTxnStmt->execute();
+        $cancelTxnRes = $cancelTxnStmt->get_result();
+        while ($row = $cancelTxnRes ? $cancelTxnRes->fetch_assoc() : null) {
+            if (!$row) break;
+            $transactions[] = [
+                'txn_id' => (int)$row['txn_id'],
+                'txn_type' => $row['txn_type'],
+                'amount' => (float)($row['amount'] ?? 0),
+                'reference_note' => $row['reference_note'],
+                'created_at' => $row['created_at']
+            ];
+        }
+        $cancelTxnStmt->close();
+    }
+}
+
+usort($transactions, static function ($a, $b) {
+    return strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? ''));
+});
+$transactions = array_slice($transactions, 0, 8);
 
 send_response(true, 'Owner finance loaded.', 200, [
     'summary' => $summary,
