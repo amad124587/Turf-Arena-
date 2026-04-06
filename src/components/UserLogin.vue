@@ -89,7 +89,7 @@ export default {
 
       try {
         const response = await axios.post(LOGIN_ENDPOINT, payload, {
-          timeout: 5000,
+          timeout: 12000,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           }
@@ -113,7 +113,7 @@ export default {
           this.message = error.response.data.status
         } else {
           this.message = error.code === 'ECONNABORTED'
-            ? 'Server response timeout.'
+            ? 'Server response timeout. Please try again.'
             : 'Server connection failed.'
         }
       } finally {

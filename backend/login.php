@@ -11,6 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once 'db_connection.php';
 
+if (isset($conn) && $conn instanceof mysqli) {
+    $conn->set_charset('utf8mb4');
+}
+
 function send_response($success, $status, $code = 200, $extra = []) {
     http_response_code($code);
     echo json_encode(array_merge([
@@ -21,17 +25,32 @@ function send_response($success, $status, $code = 200, $extra = []) {
 }
 
 function table_exists($conn, $table) {
+    static $tableCache = [];
+
+    if (array_key_exists($table, $tableCache)) {
+        return $tableCache[$table];
+    }
+
     $name = $conn->real_escape_string($table);
     $res = $conn->query("SHOW TABLES LIKE '$name'");
-    return $res && $res->num_rows > 0;
+    $tableCache[$table] = $res && $res->num_rows > 0;
+    return $tableCache[$table];
 }
 
 function column_exists($conn, $table, $column) {
+    static $columnCache = [];
+
+    $cacheKey = $table . '.' . $column;
+    if (array_key_exists($cacheKey, $columnCache)) {
+        return $columnCache[$cacheKey];
+    }
+
     $safeTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
     if ($safeTable === '') return false;
     $col = $conn->real_escape_string($column);
     $res = $conn->query("SHOW COLUMNS FROM `$safeTable` LIKE '$col'");
-    return $res && $res->num_rows > 0;
+    $columnCache[$cacheKey] = $res && $res->num_rows > 0;
+    return $columnCache[$cacheKey];
 }
 
 function get_owner_id($conn, $userId, $email) {
@@ -52,7 +71,7 @@ function get_owner_id($conn, $userId, $email) {
     }
 
     if ($email !== '' && column_exists($conn, 'turf_owners', 'email')) {
-        $stmt = $conn->prepare('SELECT owner_id FROM turf_owners WHERE LOWER(email) = LOWER(?) LIMIT 1');
+        $stmt = $conn->prepare('SELECT owner_id FROM turf_owners WHERE email = ? LIMIT 1');
         if ($stmt) {
             $stmt->bind_param('s', $email);
             $stmt->execute();
@@ -133,7 +152,7 @@ if (table_exists($conn, 'users')) {
 
     $sql = "SELECT user_id, full_name, email, password_hash, status$selectRole
             FROM users
-            WHERE LOWER(email) = LOWER(?)
+            WHERE email = ?
             LIMIT 1";
 
     $stmt = $conn->prepare($sql);
@@ -167,7 +186,7 @@ if (table_exists($conn, 'users')) {
 
             $adminId = 0;
             if ($role === 'admin' && table_exists($conn, 'admins')) {
-                $adminStmt = $conn->prepare('SELECT admin_id FROM admins WHERE LOWER(email) = LOWER(?) LIMIT 1');
+                $adminStmt = $conn->prepare('SELECT admin_id FROM admins WHERE email = ? LIMIT 1');
                 if ($adminStmt) {
                     $adminStmt->bind_param('s', $email);
                     $adminStmt->execute();
@@ -199,7 +218,7 @@ if (table_exists($conn, 'users')) {
 }
 
 if (table_exists($conn, 'admins')) {
-    $adminSql = 'SELECT admin_id, full_name, email, password_hash FROM admins WHERE LOWER(email) = LOWER(?) LIMIT 1';
+    $adminSql = 'SELECT admin_id, full_name, email, password_hash FROM admins WHERE email = ? LIMIT 1';
     $adminStmt = $conn->prepare($adminSql);
     if (!$adminStmt) {
         send_response(false, 'Server error while preparing admin login.', 500);
