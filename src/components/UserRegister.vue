@@ -103,7 +103,7 @@ export default {
 </script>
 
 <template>
-  <div class="relative flex min-h-screen items-center justify-center bg-gray-100 px-4 font-poppins">
+  <div class="relative flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(217,220,219,0.9),transparent_26%),radial-gradient(circle_at_top_right,rgba(186,195,205,0.34),transparent_22%),linear-gradient(180deg,#f5f6f7_0%,#d9dcdb_34%,#bac3cd_66%,#2d3945_100%)] px-4 font-poppins">
     <button
       type="button"
       class="absolute right-4 top-4 rounded-full border border-white/95 bg-white/80 px-4 py-2 font-semibold text-slate-900 backdrop-blur-[14px] shadow-glass transition hover:bg-white"
@@ -155,7 +155,7 @@ export default {
 
         <button
           type="submit"
-          class="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#2f428f] px-3 py-2.5 font-bold text-white transition-colors hover:bg-[#5a7ee8] focus-visible:bg-[#5a7ee8] disabled:cursor-wait disabled:opacity-85"
+          class="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#2D3945] px-3 py-2.5 font-bold text-white transition-colors hover:bg-[#BAC3CD] hover:text-[#202833] focus-visible:bg-[#BAC3CD] focus-visible:text-[#202833] disabled:cursor-wait disabled:opacity-85"
           :disabled="loading"
         >
           <span

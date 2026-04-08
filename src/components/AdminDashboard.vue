@@ -106,7 +106,7 @@ export default {
 </script>
 
 <template>
-  <div class="min-h-screen w-full box-border bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_50%,#f3f4f6_100%)] p-2.5 font-poppins text-[#111827]">
+  <div class="min-h-screen w-full box-border bg-[radial-gradient(circle_at_top_left,rgba(217,220,219,0.9),transparent_26%),radial-gradient(circle_at_top_right,rgba(186,195,205,0.34),transparent_22%),linear-gradient(180deg,#f5f6f7_0%,#d9dcdb_34%,#bac3cd_66%,#2d3945_100%)] p-2.5 font-poppins text-[#202833]">
     <AppTopbar
       wrapper-class="mb-3 w-full px-4 py-3.5 max-md:flex-wrap"
       left-class="gap-2.5 max-md:flex-wrap"

@@ -4,10 +4,69 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --slate-primary: #2d3945;
+  --slate-secondary: #bac3cd;
+  --slate-accent: #d9dcdb;
+  --slate-bg: #f5f6f7;
+  --slate-text: #202833;
+  --slate-shadow: 0 18px 36px rgba(45, 57, 69, 0.14);
+  --slate-ring: 0 0 0 3px rgba(186, 195, 205, 0.22);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: #f8fafc;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(217, 220, 219, 0.88), transparent 26%),
+    radial-gradient(circle at top right, rgba(186, 195, 205, 0.34), transparent 22%),
+    linear-gradient(180deg, #f5f6f7 0%, #d9dcdb 34%, #bac3cd 66%, #2d3945 100%);
   font-family: 'Poppins', sans-serif;
-  color: #1f2937;
+  color: var(--slate-text);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(186, 195, 205, 0.35);
+  color: #1f2933;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d9dcdb 0%, #bac3cd 58%, #2d3945 100%);
+  border: 2px solid rgba(255, 255, 255, 0.72);
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.shadow-glass {
+  box-shadow: var(--slate-shadow);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: var(--slate-ring);
+}
+
+#app {
+  min-height: 100vh;
 }
 
 .page-fade-enter-active,
