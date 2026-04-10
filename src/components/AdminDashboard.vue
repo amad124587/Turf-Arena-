@@ -1,18 +1,16 @@
 <script>
 import AdminAnalyticsSection from '../components/AdminAnalyticsSection.vue'
-import AdminBookingRequestsSection from '../components/AdminBookingRequestsSection.vue'
 import AdminOverviewSection from '../components/AdminOverviewSection.vue'
 import AdminOwnerEarningsSection from '../components/AdminOwnerEarningsSection.vue'
-import AdminRefundsSection from '../components/AdminRefundsSection.vue'
 import AdminUsersOwnersSection from '../components/AdminUsersOwnersSection.vue'
 import AdminVerifyTurfsSection from '../components/AdminVerifyTurfsSection.vue'
+import OwnerPlaceholderSection from '../components/OwnerPlaceholderSection.vue'
 import adminOverviewIcon from '../assets/admin-overview-icon.svg'
 import analyticsIcon from '../assets/analytics-icon.svg'
 import AppTopbar from '../components/AppTopbar.vue'
-import bookingRequestsIcon from '../assets/booking-requests-icon.svg'
 import GlassButton from '../components/GlassButton.vue'
 import ownerEarningsIcon from '../assets/owner-earnings-icon.svg'
-import refundRequestsIcon from '../assets/refund-requests-icon.svg'
+import ownerReviewsIcon from '../assets/owner-reviews-icon.svg'
 import UserDashboardProfileMenu from '../components/UserDashboardProfileMenu.vue'
 import usersOwnersIcon from '../assets/users-owners-icon.svg'
 import verifyTurfsIcon from '../assets/verify-turfs-icon.svg'
@@ -29,14 +27,13 @@ export default {
   name: 'AdminDashboard',
   components: {
     AdminAnalyticsSection,
-    AdminBookingRequestsSection,
     AdminOverviewSection,
     AdminOwnerEarningsSection,
-    AdminRefundsSection,
     AdminUsersOwnersSection,
     AdminVerifyTurfsSection,
     AppTopbar,
     GlassButton,
+    OwnerPlaceholderSection,
     UserDashboardProfileMenu
   },
   data() {
@@ -48,7 +45,6 @@ export default {
       messageType: 'info',
       actionLoadingMap: {},
       turfNotes: {},
-      refundNotes: {},
       adminId: Number(localStorage.getItem('admin_id') || user.admin_id || (user.role === 'admin' ? user.user_id : 0) || 0),
       adminName: user.full_name || localStorage.getItem('user_name') || 'Admin',
       stats: createAdminStats(),
@@ -66,10 +62,9 @@ export default {
       return {
         overview: adminOverviewIcon,
         verifyTurfs: verifyTurfsIcon,
-        bookingRequests: bookingRequestsIcon,
-        refunds: refundRequestsIcon,
         ownerEarnings: ownerEarningsIcon,
         usersOwners: usersOwnersIcon,
+        reviews: ownerReviewsIcon,
         analytics: analyticsIcon
       }
     },
@@ -180,28 +175,6 @@ export default {
             @review="reviewTurf($event.item, $event.action)"
           />
 
-          <AdminBookingRequestsSection
-            v-else-if="activeTab === 'bookingRequests'"
-            key="admin-booking-requests"
-            :pending-bookings="pendingBookings"
-            :is-action-loading="isActionLoading"
-            :format-money="formatMoney"
-            :format-date="formatDate"
-            :format-time="formatTime"
-            @review="reviewBooking($event.item, $event.action)"
-          />
-
-          <AdminRefundsSection
-            v-else-if="activeTab === 'refunds'"
-            key="admin-refunds"
-            :pending-refunds="pendingRefunds"
-            :notes="refundNotes"
-            :is-action-loading="isActionLoading"
-            :format-money="formatMoney"
-            @update-note="refundNotes = { ...refundNotes, [$event.id]: $event.value }"
-            @review="reviewRefund($event.item, $event.action)"
-          />
-
           <AdminOwnerEarningsSection
             v-else-if="activeTab === 'ownerEarnings'"
             key="admin-owner-earnings"
@@ -226,6 +199,12 @@ export default {
             :status-tone="statusTone"
             :is-action-loading="isActionLoading"
             @toggle="toggleUserStatus($event.type, $event.id, $event.action)"
+          />
+
+          <OwnerPlaceholderSection
+            v-else-if="activeTab === 'reviews'"
+            key="admin-reviews"
+            :panel-title="panelTitle"
           />
 
           <AdminAnalyticsSection

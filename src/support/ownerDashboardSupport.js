@@ -6,16 +6,20 @@ const API_PROTOCOL = typeof window !== 'undefined' && window.location.protocol.s
 const API_HOST = typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1'
 const ADD_TURF_ENDPOINT = `${API_PROTOCOL}//${API_HOST}/turfbooking/backend/add_turf.php`
 const OWNER_FINANCE_ENDPOINT = `${API_PROTOCOL}//${API_HOST}/turfbooking/backend/owner_finance.php`
+const OWNER_PENDING_REQUESTS_ENDPOINT = `${API_PROTOCOL}//${API_HOST}/turfbooking/backend/owner_pending_requests.php`
+const OWNER_BOOKING_ACTION_ENDPOINT = `${API_PROTOCOL}//${API_HOST}/turfbooking/backend/owner_booking_action.php`
+const OWNER_REFUND_ACTION_ENDPOINT = `${API_PROTOCOL}//${API_HOST}/turfbooking/backend/owner_refund_action.php`
 
 export const OWNER_MENU_ITEMS = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'myTurfs', label: 'Add Turfs' },
   { key: 'ownerTurfs', label: 'My Turfs' },
   { key: 'bookings', label: 'Bookings' },
+  { key: 'bookingRequests', label: 'Booking Requests' },
+  { key: 'refundRequests', label: 'Refund Requests' },
   { key: 'revenue', label: 'Revenue' },
   { key: 'slotControl', label: 'Slot Control' },
-  { key: 'promoCodes', label: 'Promo Codes' },
-  { key: 'reviews', label: 'Reviews' }
+  { key: 'promoCodes', label: 'Promo Codes' }
 ]
 
 export function getOwnerSessionUser() {
@@ -34,6 +38,13 @@ export function createOwnerFinanceSummary() {
     pending_refund_requests: 0,
     cancelled_bookings: 0,
     active_turfs: 0
+  }
+}
+
+export function createOwnerPendingRequestsState() {
+  return {
+    pendingBookings: [],
+    pendingRefunds: []
   }
 }
 
@@ -62,6 +73,25 @@ function toPositiveNumber(value) {
 }
 
 export const ownerDashboardMethods = {
+  formatDate(value) {
+    if (!value) return 'N/A'
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return value
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  },
+  formatTime(value) {
+    if (!value) return 'N/A'
+    const txt = String(value)
+    const parts = txt.split(':')
+    if (parts.length < 2) return txt
+    let hour = Number(parts[0])
+    const minute = parts[1]
+    if (Number.isNaN(hour)) return txt
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    hour %= 12
+    if (hour === 0) hour = 12
+    return `${hour}:${minute} ${ampm}`
+  },
   formatMoney(value) {
     const n = Number(value || 0)
     return Number.isFinite(n) ? n.toFixed(2) : '0.00'
@@ -84,15 +114,98 @@ export const ownerDashboardMethods = {
       this.financeLoading = false
     }
   },
+  keyFor(type, id) {
+    return `${type}:${id}`
+  },
+  isActionLoading(type, id) {
+    return !!this.actionLoadingMap[this.keyFor(type, id)]
+  },
+  setActionLoading(type, id, value) {
+    this.actionLoadingMap = {
+      ...this.actionLoadingMap,
+      [this.keyFor(type, id)]: value
+    }
+  },
+  async loadPendingRequests() {
+    if (!this.ownerIdFromSession) return
+    try {
+      const response = await axios.get(OWNER_PENDING_REQUESTS_ENDPOINT, {
+        params: { owner_id: this.ownerIdFromSession },
+        timeout: 10000
+      })
+      if (response.data?.success) {
+        this.ownerRequests = {
+          pendingBookings: Array.isArray(response.data.pending_bookings) ? response.data.pending_bookings : [],
+          pendingRefunds: Array.isArray(response.data.pending_refunds) ? response.data.pending_refunds : []
+        }
+      } else {
+        this.messageType = 'error'
+        this.message = response.data?.message || 'Failed to load owner requests.'
+      }
+    } catch (error) {
+      this.messageType = 'error'
+      this.message = error.response?.data?.message || 'Failed to load owner requests.'
+    }
+  },
+  async reviewBookingRequest(item, action) {
+    this.setActionLoading('booking', item.booking_id, true)
+    try {
+      const response = await axios.post(OWNER_BOOKING_ACTION_ENDPOINT, {
+        owner_id: this.ownerIdFromSession,
+        booking_id: item.booking_id,
+        action
+      }, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 10000
+      })
+
+      if (response.data?.success) {
+        const plus = Number(response.data.points_awarded || 0)
+        this.messageType = 'success'
+        this.message = `Booking #${item.booking_id} ${response.data.status}.${plus > 0 ? ` +${plus} points` : ''}`
+        await Promise.all([this.loadPendingRequests(), this.loadOwnerFinance()])
+      } else {
+        this.messageType = 'error'
+        this.message = response.data?.message || 'Booking action failed.'
+      }
+    } catch (error) {
+      this.messageType = 'error'
+      this.message = error.response?.data?.message || 'Booking action failed.'
+    } finally {
+      this.setActionLoading('booking', item.booking_id, false)
+    }
+  },
+  async reviewRefundRequest(item, action) {
+    this.setActionLoading('refund', item.refund_id, true)
+    try {
+      const response = await axios.post(OWNER_REFUND_ACTION_ENDPOINT, {
+        owner_id: this.ownerIdFromSession,
+        refund_id: item.refund_id,
+        action,
+        owner_note: this.refundNotes[item.refund_id] || ''
+      }, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 10000
+      })
+
+      if (response.data?.success) {
+        this.refundNotes = { ...this.refundNotes, [item.refund_id]: '' }
+        this.messageType = 'success'
+        this.message = `Refund #${item.refund_id} updated to ${response.data.status}.`
+        await Promise.all([this.loadPendingRequests(), this.loadOwnerFinance()])
+      } else {
+        this.messageType = 'error'
+        this.message = response.data?.message || 'Refund action failed.'
+      }
+    } catch (error) {
+      this.messageType = 'error'
+      this.message = error.response?.data?.message || 'Refund action failed.'
+    } finally {
+      this.setActionLoading('refund', item.refund_id, false)
+    }
+  },
   switchToUserDashboard() {
     localStorage.setItem('mode', 'user')
-    this.$router.push('/dashboard')
-  },
-  goBack() {
-    if (window.history.length > 1) {
-      this.$router.back()
-      return
-    }
     this.$router.push('/dashboard')
   },
   resetForm() {

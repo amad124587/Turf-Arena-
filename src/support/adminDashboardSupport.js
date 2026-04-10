@@ -9,10 +9,9 @@ const API_BASE = `${API_PROTOCOL}//${API_HOST}/turfbooking/backend`
 export const ADMIN_MENU_ITEMS = [
   { key: 'overview', label: 'Overview' },
   { key: 'verifyTurfs', label: 'Verify Turfs' },
-  { key: 'bookingRequests', label: 'Booking Requests' },
-  { key: 'refunds', label: 'Refund Requests' },
   { key: 'ownerEarnings', label: 'Owner Earnings' },
   { key: 'usersOwners', label: 'Users & Owners' },
+  { key: 'reviews', label: 'Reviews' },
   { key: 'analytics', label: 'Analytics' }
 ]
 
@@ -61,13 +60,6 @@ export function createAdminOwnerEarningsState() {
 export const adminDashboardMethods = {
   switchToUserDashboard() {
     localStorage.setItem('mode', 'user')
-    this.$router.push('/dashboard')
-  },
-  goBack() {
-    if (window.history.length > 1) {
-      this.$router.back()
-      return
-    }
     this.$router.push('/dashboard')
   },
   setMessage(type, text) {
@@ -268,57 +260,6 @@ export const adminDashboardMethods = {
       this.setMessage('error', this.getApiErrorMessage(error, 'Turf action failed.'))
     } finally {
       this.setActionLoading('turf', item.turf_id, false)
-    }
-  },
-  async reviewBooking(item, action) {
-    this.setActionLoading('booking', item.booking_id, true)
-    try {
-      const response = await axios.post(`${API_BASE}/admin_booking_action.php`, {
-        admin_id: this.adminId,
-        booking_id: item.booking_id,
-        action
-      }, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 10000
-      })
-
-      if (response.data?.success) {
-        const plus = Number(response.data.points_awarded || 0)
-        this.setMessage('success', `Booking #${item.booking_id} ${response.data.status}.${plus > 0 ? ` +${plus} points` : ''}`)
-        await this.loadDashboard()
-      } else {
-        this.setMessage('error', response.data?.message || 'Booking action failed.')
-      }
-    } catch (error) {
-      this.setMessage('error', this.getApiErrorMessage(error, 'Booking action failed.'))
-    } finally {
-      this.setActionLoading('booking', item.booking_id, false)
-    }
-  },
-  async reviewRefund(item, action) {
-    this.setActionLoading('refund', item.refund_id, true)
-    try {
-      const response = await axios.post(`${API_BASE}/admin_refund_action.php`, {
-        admin_id: this.adminId,
-        refund_id: item.refund_id,
-        action,
-        admin_note: this.refundNotes[item.refund_id] || ''
-      }, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 10000
-      })
-
-      if (response.data?.success) {
-        this.refundNotes = { ...this.refundNotes, [item.refund_id]: '' }
-        this.setMessage('success', `Refund #${item.refund_id} updated to ${response.data.status}.`)
-        await this.loadDashboard()
-      } else {
-        this.setMessage('error', response.data?.message || 'Refund action failed.')
-      }
-    } catch (error) {
-      this.setMessage('error', this.getApiErrorMessage(error, 'Refund action failed.'))
-    } finally {
-      this.setActionLoading('refund', item.refund_id, false)
     }
   },
   async toggleUserStatus(type, id, action) {

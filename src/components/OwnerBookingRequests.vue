@@ -1,12 +1,17 @@
 <script>
 export default {
-  name: 'AdminBookingRequestsSection',
+  name: 'BookingRequestsSection',
   props: {
     pendingBookings: { type: Array, default: () => [] },
     isActionLoading: { type: Function, required: true },
     formatMoney: { type: Function, required: true },
     formatDate: { type: Function, required: true },
-    formatTime: { type: Function, required: true }
+    formatTime: { type: Function, required: true },
+    title: { type: String, default: 'Accept / Reject Booking Requests' },
+    subtitle: { type: String, default: 'Points are awarded instantly when a booking is confirmed.' },
+    emptyText: { type: String, default: 'No pending booking requests.' },
+    primaryActionLabel: { type: String, default: 'Accept' },
+    secondaryActionLabel: { type: String, default: 'Reject' }
   },
   emits: ['review']
 }
@@ -15,11 +20,11 @@ export default {
 <template>
   <section class="rounded-[14px] border border-transparent bg-white/80 p-3.5 backdrop-blur-[14px] shadow-glass transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_20px_rgba(20,32,89,0.18)]">
     <div>
-      <h3 class="m-0 text-[18px] font-bold text-slate-900">Accept / Reject Booking Requests</h3>
-      <p class="mt-2 text-slate-600">Points are awarded instantly when a booking is confirmed.</p>
+      <h3 class="m-0 text-[18px] font-bold text-slate-900">{{ title }}</h3>
+      <p class="mt-2 text-slate-600">{{ subtitle }}</p>
     </div>
 
-    <p v-if="!pendingBookings.length" class="mt-3 text-slate-500">No pending booking requests.</p>
+    <p v-if="!pendingBookings.length" class="mt-3 text-slate-500">{{ emptyText }}</p>
 
     <div v-else class="mt-3 grid grid-cols-2 gap-3 max-[1200px]:grid-cols-1">
       <article
@@ -42,7 +47,7 @@ export default {
             :disabled="isActionLoading('booking', item.booking_id)"
             @click="$emit('review', { item, action: 'confirm' })"
           >
-            Accept
+            {{ primaryActionLabel }}
           </button>
           <button
             type="button"
@@ -50,7 +55,7 @@ export default {
             :disabled="isActionLoading('booking', item.booking_id)"
             @click="$emit('review', { item, action: 'reject' })"
           >
-            Reject
+            {{ secondaryActionLabel }}
           </button>
         </div>
       </article>

@@ -1,11 +1,12 @@
 <script>
 import AppTopbar from '../components/AppTopbar.vue'
+import BookingRequestsSection from './OwnerBookingRequests.vue'
+import RefundRequestsSection from './OwnerRefundRequestsSection.vue'
 import GlassButton from '../components/GlassButton.vue'
 import OwnerAddTurfsSection from '../components/OwnerAddTurfsSection.vue'
 import OwnerBookingsSection from '../components/OwnerBookingsSection.vue'
 import OwnerMyTurfsSection from '../components/OwnerMyTurfsSection.vue'
 import OwnerOverviewSection from '../components/OwnerOverviewSection.vue'
-import OwnerPlaceholderSection from '../components/OwnerPlaceholderSection.vue'
 import OwnerPromoCodesSection from '../components/OwnerPromoCodesSection.vue'
 import OwnerRevenueSection from '../components/OwnerRevenueSection.vue'
 import OwnerSlotControlSection from '../components/OwnerSlotControlSection.vue'
@@ -14,13 +15,15 @@ import addTurfsIcon from '../assets/add-turfs-icon.svg'
 import ownerBookingsIcon from '../assets/owner-bookings-icon.svg'
 import ownerDashboardIcon from '../assets/owner-dashboard-icon.svg'
 import myTurfsIcon from '../assets/my-turfs-icon.svg'
-import ownerReviewsIcon from '../assets/owner-reviews-icon.svg'
 import promoCodesIcon from '../assets/promo-codes-icon.svg'
 import revenueIcon from '../assets/revenue-icon.svg'
+import refundRequestsIcon from '../assets/refund-requests-icon.svg'
 import slotControlIcon from '../assets/slot-control-icon.svg'
+import bookingRequestsIcon from '../assets/booking-requests-icon.svg'
 import {
   createOwnerFinanceSummary,
   createOwnerForm,
+  createOwnerPendingRequestsState,
   getOwnerSessionUser,
   ownerDashboardMethods,
   OWNER_MENU_ITEMS
@@ -29,13 +32,14 @@ import {
 export default {
   name: 'OwnerDashboard',
   components: {
+    BookingRequestsSection,
+    RefundRequestsSection,
     AppTopbar,
     GlassButton,
     OwnerAddTurfsSection,
     OwnerBookingsSection,
     OwnerMyTurfsSection,
     OwnerOverviewSection,
-    OwnerPlaceholderSection,
     OwnerPromoCodesSection,
     OwnerRevenueSection,
     OwnerSlotControlSection,
@@ -59,8 +63,11 @@ export default {
       ownerIdFromSession: Number(localStorage.getItem('owner_id') || sessionUser.owner_id || 0),
       financeLoading: false,
       ownerFinance: createOwnerFinanceSummary(),
+      ownerRequests: createOwnerPendingRequestsState(),
       ownerTransactions: [],
-      form: createOwnerForm()
+      form: createOwnerForm(),
+      actionLoadingMap: {},
+      refundNotes: {}
     }
   },
   computed: {
@@ -70,10 +77,11 @@ export default {
         myTurfs: addTurfsIcon,
         ownerTurfs: myTurfsIcon,
         bookings: ownerBookingsIcon,
+        bookingRequests: bookingRequestsIcon,
+        refundRequests: refundRequestsIcon,
         revenue: revenueIcon,
         slotControl: slotControlIcon,
-        promoCodes: promoCodesIcon,
-        reviews: ownerReviewsIcon
+        promoCodes: promoCodesIcon
       }
     },
     panelTitle() {
@@ -83,14 +91,11 @@ export default {
     }
   },
   async mounted() {
-    await this.loadOwnerFinance()
+    await Promise.all([this.loadOwnerFinance(), this.loadPendingRequests()])
   },
   methods: {
     ...ownerDashboardMethods,
     handleMenuClick(key) {
-      if (key === 'reviews') {
-        return
-      }
       this.activeTab = key
     },
     openProfileMenu() {
@@ -213,6 +218,39 @@ export default {
             :owner-id="ownerIdFromSession"
           />
 
+          <BookingRequestsSection
+            v-else-if="activeTab === 'bookingRequests'"
+            key="owner-booking-requests"
+            :pending-bookings="ownerRequests.pendingBookings"
+            :is-action-loading="isActionLoading"
+            :format-money="formatMoney"
+            :format-date="formatDate"
+            :format-time="formatTime"
+            title="Manage Booking Requests"
+            subtitle="Accept or reject booking requests for your turfs directly from the owner panel."
+            empty-text="No pending booking requests for your turfs."
+            primary-action-label="Accept"
+            secondary-action-label="Reject"
+            @review="reviewBookingRequest($event.item, $event.action)"
+          />
+
+          <RefundRequestsSection
+            v-else-if="activeTab === 'refundRequests'"
+            key="owner-refund-requests"
+            :pending-refunds="ownerRequests.pendingRefunds"
+            :notes="refundNotes"
+            :is-action-loading="isActionLoading"
+            :format-money="formatMoney"
+            title="Manage Refund Requests"
+            subtitle="Review cancellation refunds for your own bookings and complete the payout flow."
+            empty-text="No pending refund requests for your turfs."
+            note-placeholder="Owner note"
+            primary-action-label="Approve"
+            secondary-action-label="Reject"
+            @update-note="refundNotes = { ...refundNotes, [$event.id]: $event.value }"
+            @review="reviewRefundRequest($event.item, $event.action)"
+          />
+
           <OwnerSlotControlSection
             v-else-if="activeTab === 'slotControl'"
             key="owner-slot-control"
@@ -224,12 +262,6 @@ export default {
             key="owner-promo-codes"
             :owner-id="ownerIdFromSession"
             :owner-name="ownerName"
-          />
-
-          <OwnerPlaceholderSection
-            v-else
-            key="owner-placeholder"
-            :panel-title="panelTitle"
           />
         </transition>
       </main>
