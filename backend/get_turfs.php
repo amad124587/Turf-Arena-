@@ -41,6 +41,30 @@ $locationSelect = column_exists($conn, 'turfs', 'location')
     ? "t.location"
     : "'' AS location";
 
+$descriptionSelect = column_exists($conn, 'turfs', 'description')
+    ? "t.description"
+    : "'' AS description";
+
+$featuredSelect = column_exists($conn, 'turfs', 'is_featured')
+    ? "t.is_featured"
+    : "0 AS is_featured";
+
+$cancelBeforeHoursSelect = column_exists($conn, 'turfs', 'cancel_before_hours')
+    ? "t.cancel_before_hours"
+    : "0 AS cancel_before_hours";
+
+$refundPercentSelect = column_exists($conn, 'turfs', 'refund_percent')
+    ? "t.refund_percent"
+    : "0 AS refund_percent";
+
+$latitudeSelect = column_exists($conn, 'turfs', 'latitude')
+    ? "t.latitude"
+    : "'' AS latitude";
+
+$longitudeSelect = column_exists($conn, 'turfs', 'longitude')
+    ? "t.longitude"
+    : "'' AS longitude";
+
 $imageSelect = table_exists($conn, 'turf_images')
     ? "(
         SELECT ti.image_url
@@ -60,7 +84,13 @@ SELECT
     t.area,
     t.city,
     $locationSelect,
+    $latitudeSelect,
+    $longitudeSelect,
     t.price_per_hour,
+    $descriptionSelect,
+    $featuredSelect,
+    $cancelBeforeHoursSelect,
+    $refundPercentSelect,
     t.status,
     t.created_at,
     $imageSelect
@@ -88,7 +118,13 @@ while ($row = $result->fetch_assoc()) {
         "area" => $row["area"],
         "city" => $row["city"],
         "location" => $row["location"] ?? "",
+        "latitude" => (string)($row["latitude"] ?? ""),
+        "longitude" => (string)($row["longitude"] ?? ""),
         "price_per_hour" => (float)$row["price_per_hour"],
+        "description" => $row["description"] ?? "",
+        "is_featured" => (int)($row["is_featured"] ?? 0) === 1,
+        "cancel_before_hours" => (int)($row["cancel_before_hours"] ?? 0),
+        "refund_percent" => (int)($row["refund_percent"] ?? 0),
         "status" => $row["status"],
         "created_at" => $createdAt,
         "is_new" => $isNew,

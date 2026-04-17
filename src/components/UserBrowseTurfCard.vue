@@ -52,7 +52,7 @@ export default {
       required: true
     }
   },
-  emits: ['update-field', 'date-change', 'slot-change', 'book', 'apply-promo'],
+  emits: ['update-field', 'date-change', 'slot-change', 'book', 'apply-promo', 'view-details'],
   methods: {
     emitUpdate(field, value) {
       this.$emit('update-field', this.turf, field, value)
@@ -72,6 +72,18 @@ export default {
       <div v-else class="grid h-full w-full place-items-center font-semibold text-slate-600">No Image</div>
 
       <span v-if="turf.is_new" class="absolute left-2 top-2 rounded-full bg-green-500/90 px-2 py-1 text-xs font-bold text-green-950">New Turf</span>
+      <button
+        type="button"
+        class="absolute right-2 top-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/95 bg-white/88 text-slate-900 shadow-glass transition duration-200 hover:-translate-y-0.5 hover:bg-white"
+        title="View full turf details"
+        aria-label="View full turf details"
+        @click="$emit('view-details', turf)"
+      >
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
     </div>
 
     <div class="p-3.5">

@@ -1,5 +1,6 @@
 <script>
 import AppTopbar from '../components/AppTopbar.vue'
+import UserTurfDetailsModal from '../components/UserTurfDetailsModal.vue'
 import UserBrowseTurfCard from '../components/UserBrowseTurfCard.vue'
 import GlassButton from '../components/GlassButton.vue'
 import UserSidebar from '../components/UserSidebar.vue'
@@ -15,6 +16,7 @@ export default {
   components: {
     AppTopbar,
     UserBrowseTurfCard,
+    UserTurfDetailsModal,
     GlassButton,
     UserSidebar
   },
@@ -35,7 +37,9 @@ export default {
       minPrice: '',
       maxPrice: '',
       sortBy: 'newest',
-      todayDate: getDhakaTodayDate()
+      todayDate: getDhakaTodayDate(),
+      detailsModalOpen: false,
+      selectedTurfForDetails: null
     }
   },
   computed: {
@@ -58,6 +62,14 @@ export default {
   },
   methods: {
     ...userBrowseTurfsMethods,
+    openTurfDetails(turf) {
+      this.selectedTurfForDetails = turf
+      this.detailsModalOpen = true
+    },
+    closeTurfDetails() {
+      this.detailsModalOpen = false
+      this.selectedTurfForDetails = null
+    },
     handleSidebarAction(key) {
       if (key === 'dashboard') {
         this.$router.push('/dashboard')
@@ -176,9 +188,17 @@ export default {
             @slot-change="onSlotChange"
             @apply-promo="applyPromoCode"
             @book="bookTurf"
+            @view-details="openTurfDetails"
           />
         </section>
       </main>
     </div>
+
+    <UserTurfDetailsModal
+      :visible="detailsModalOpen"
+      :turf="selectedTurfForDetails"
+      :format-money="formatMoney"
+      @close="closeTurfDetails"
+    />
   </div>
 </template>
